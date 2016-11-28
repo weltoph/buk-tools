@@ -1,4 +1,5 @@
-example_program.*
+example_program.while
+bin/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

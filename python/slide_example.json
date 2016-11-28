@@ -1,5 +1,5 @@
 {
-  "program": "slide_example.while",
+  "program": "../progs/slide_example.while",
   "tests": [
     {
       "input": [2,3],
