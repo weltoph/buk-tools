@@ -12,7 +12,7 @@ void yyerror(const char *s);
 
 %union {
   uint8_t index;
-  int8_t value;
+  uint8_t value;
 }
 
 %token <index> IDENTIFIER
@@ -20,6 +20,7 @@ void yyerror(const char *s);
 %token DELIMITER
 %token ASSIGNMENT
 %token PLUS
+%token MINUS
 %token NOT_EQUAL_ZERO
 %token WHILE
 %token DO
@@ -27,11 +28,24 @@ void yyerror(const char *s);
 
 %%
 prog:
-    IDENTIFIER ASSIGNMENT IDENTIFIER PLUS CONSTANT
-    | IDENTIFIER ASSIGNMENT IDENTIFIER PLUS CONSTANT DELIMITER prog
+    IDENTIFIER ASSIGNMENT rhs_assignment
+    | IDENTIFIER ASSIGNMENT rhs_assignment DELIMITER prog
     | WHILE IDENTIFIER NOT_EQUAL_ZERO DO prog END DELIMITER prog
     | WHILE IDENTIFIER NOT_EQUAL_ZERO DO prog END
     ;
+
+rhs_assignment:
+              IDENTIFIER
+              | IDENTIFIER constant_term
+
+constant_term:
+             PLUS potentially_signed
+             | MINUS CONSTANT
+                   ;
+potentially_signed:
+                  MINUS CONSTANT
+                  | CONSTANT
+                  ;
 %%
 int main(int argc, char** argv)
 {

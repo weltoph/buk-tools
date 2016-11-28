@@ -50,10 +50,11 @@ extern int yydebug;
     DELIMITER = 260,
     ASSIGNMENT = 261,
     PLUS = 262,
-    NOT_EQUAL_ZERO = 263,
-    WHILE = 264,
-    DO = 265,
-    END = 266
+    MINUS = 263,
+    NOT_EQUAL_ZERO = 264,
+    WHILE = 265,
+    DO = 266,
+    END = 267
   };
 #endif
 
@@ -65,9 +66,9 @@ union YYSTYPE
 #line 13 "while.y" /* yacc.c:1909  */
 
   uint8_t index;
-  int8_t value;
+  uint8_t value;
 
-#line 71 "while.tab.h" /* yacc.c:1909  */
+#line 72 "while.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

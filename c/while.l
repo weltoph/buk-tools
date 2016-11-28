@@ -8,6 +8,7 @@
 
 
 INDEX 0|[1-9][0-9]*
+WHITESPACE [ \t]*
 
 %%
 
@@ -17,11 +18,6 @@ x{INDEX} {
     const uint8_t index = atoi(yytext + 1);
     yylval.index = index;
     return IDENTIFIER;
-  }
-
--1 {
-    yylval.value = -1;
-    return CONSTANT;
   }
 
 0 {
@@ -46,7 +42,11 @@ x{INDEX} {
     return PLUS;
   }
 
-\/=0 {
+- {
+    return MINUS;
+   }
+
+\/={WHITESPACE}0 {
     return NOT_EQUAL_ZERO;
   }
 
