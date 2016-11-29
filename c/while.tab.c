@@ -74,7 +74,8 @@ extern FILE *yyin;
 
 void yyerror(const char *s);
 
-#line 78 "while.tab.c" /* yacc.c:339  */
+
+#line 79 "while.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -103,6 +104,12 @@ void yyerror(const char *s);
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 15 "while.y" /* yacc.c:355  */
+
+#include "prog.h"
+
+#line 113 "while.tab.c" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -127,12 +134,14 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 13 "while.y" /* yacc.c:355  */
+#line 23 "while.y" /* yacc.c:355  */
 
   uint8_t index;
-  uint8_t value;
+  int8_t value;
+  Assignment ass;
+  Statement *stmt;
 
-#line 136 "while.tab.c" /* yacc.c:355  */
+#line 145 "while.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -149,7 +158,13 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 153 "while.tab.c" /* yacc.c:358  */
+#line 162 "while.tab.c" /* yacc.c:358  */
+/* Unqualified %code blocks.  */
+#line 19 "while.y" /* yacc.c:359  */
+
+Statement *last_parsed_statement;
+
+#line 168 "while.tab.c" /* yacc.c:359  */
 
 #ifdef short
 # undef short
@@ -447,8 +462,8 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    31,    31,    32,    33,    34,    38,    39,    42,    43,
-      46,    47
+       0,    49,    49,    61,    74,    84,    96,   100,   106,   107,
+     110,   111
 };
 #endif
 
@@ -1228,8 +1243,114 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-      
-#line 1233 "while.tab.c" /* yacc.c:1646  */
+        case 2:
+#line 49 "while.y" /* yacc.c:1646  */
+    {
+        Assignment const rhs_ass = (yyvsp[0].ass);
+        uint8_t const lhs_index  = (yyvsp[-2].index);
+        uint8_t const rhs_index  = rhs_ass.rhs_index;
+        int8_t const constant    = rhs_ass.constant;
+        Statement *this_statement = gen_assignment(lhs_index, rhs_index,
+          constant, NULL);
+        if (!this_statement)
+          ; /* TODO: error */
+        last_parsed_statement = this_statement;
+        (yyval.stmt) = this_statement;
+      }
+#line 1261 "while.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 3:
+#line 61 "while.y" /* yacc.c:1646  */
+    {
+        Assignment const rhs_ass = (yyvsp[-2].ass);
+        uint8_t const lhs_index  = (yyvsp[-4].index);
+        uint8_t const rhs_index  = rhs_ass.rhs_index;
+        int8_t const constant    = rhs_ass.constant;
+        Statement *next          = (yyvsp[0].stmt);
+        Statement *this_statement = gen_assignment(lhs_index, rhs_index,
+          constant, next);
+        if (!this_statement)
+          ; /* TODO: error */
+        last_parsed_statement = this_statement;
+        (yyval.stmt) = this_statement;
+      }
+#line 1279 "while.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 4:
+#line 74 "while.y" /* yacc.c:1646  */
+    {
+        Statement *cond_branch = (yyvsp[-3].stmt);
+        uint8_t const cond_ind = (yyvsp[-6].index);
+        Statement *next        = (yyvsp[0].stmt);
+        Statement *this_statement = gen_while(cond_ind, cond_branch, next);
+        if (!this_statement)
+          ; /* TODO: error */
+        last_parsed_statement = this_statement;
+        (yyval.stmt) = this_statement;
+      }
+#line 1294 "while.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 5:
+#line 84 "while.y" /* yacc.c:1646  */
+    {
+        Statement *cond_branch = (yyvsp[-1].stmt);
+        uint8_t const cond_ind = (yyvsp[-4].index);
+        Statement *this_statement = gen_while(cond_ind, cond_branch, NULL);
+        if (!this_statement)
+          ; /* TODO: error */
+        last_parsed_statement = this_statement;
+        (yyval.stmt) = this_statement;
+      }
+#line 1308 "while.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 6:
+#line 96 "while.y" /* yacc.c:1646  */
+    {
+                  const Assignment ass = {.rhs_index = (yyvsp[0].index), .constant = 0};
+                  (yyval.ass) = ass;
+                }
+#line 1317 "while.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 7:
+#line 100 "while.y" /* yacc.c:1646  */
+    {
+                  const Assignment ass = {.rhs_index = (yyvsp[-1].index), .constant = (yyvsp[0].value)};
+                  (yyval.ass) = ass;
+                }
+#line 1326 "while.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 8:
+#line 106 "while.y" /* yacc.c:1646  */
+    { (yyval.value) = (yyvsp[0].value); }
+#line 1332 "while.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 9:
+#line 107 "while.y" /* yacc.c:1646  */
+    { (yyval.value) = -(yyvsp[0].value); }
+#line 1338 "while.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 10:
+#line 110 "while.y" /* yacc.c:1646  */
+    { (yyval.value) = -(yyvsp[0].value); }
+#line 1344 "while.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 11:
+#line 111 "while.y" /* yacc.c:1646  */
+    { (yyval.value) = (yyvsp[0].value); }
+#line 1350 "while.tab.c" /* yacc.c:1646  */
+    break;
+
+
+#line 1354 "while.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1457,25 +1578,44 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 49 "while.y" /* yacc.c:1906  */
+#line 113 "while.y" /* yacc.c:1906  */
 
 int main(int argc, char** argv)
 {
-  FILE *myfile = fopen(argv[1], "r");
+  /* consume executable name */
+  argc--; argv++;
+  FILE *myfile = fopen(*argv, "r");
 
   if (!myfile) {
-    printf("couldn't open file");
+    printf("Couldn't open file %s", *argv);
     return -1;
   }
 
+  /* consume file name */
+  argc--; argv++;
 
   yyin = myfile;
 
   do {
     yyparse();
   } while (!feof(yyin));
-}
 
+
+  /* generating program */
+  Program prog = {.current_statement = last_parsed_statement,
+    .program_begin = last_parsed_statement};
+
+  /* reading input variables */ 
+  for(uint8_t i = 0; i < argc; i++)
+  {
+    prog.variables[i+1] = atoi(argv[i]);
+  }
+  /* execute program */
+  execute(&prog);
+
+  /* output */
+  printf("The result of the computation is %d", prog.variables[0]);
+}
 
 void yyerror(const char *s)
 {

@@ -39,6 +39,12 @@
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 15 "while.y" /* yacc.c:1909  */
+
+#include "prog.h"
+
+#line 48 "while.tab.h" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -63,12 +69,14 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 13 "while.y" /* yacc.c:1909  */
+#line 23 "while.y" /* yacc.c:1909  */
 
   uint8_t index;
-  uint8_t value;
+  int8_t value;
+  Assignment ass;
+  Statement *stmt;
 
-#line 72 "while.tab.h" /* yacc.c:1909  */
+#line 80 "while.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

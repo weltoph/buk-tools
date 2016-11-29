@@ -12,7 +12,7 @@ WHITESPACE [ \t]*
 
 %%
 
-[ \n\t];
+[ \n\t]
 
 x{INDEX} {
     const uint8_t index = atoi(yytext + 1);
@@ -20,13 +20,8 @@ x{INDEX} {
     return IDENTIFIER;
   }
 
-0 {
-    yylval.value = 0;
-    return CONSTANT;
-  }
-
-1 {
-    yylval.value = 1;
+0|1 {
+    yylval.value = atoi(yytext);
     return CONSTANT;
   }
 
