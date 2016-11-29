@@ -1,5 +1,11 @@
 example_program.while
 bin/
+
+# bison/flex generated files:
+*yy.c
+*tab.c
+*tab.h
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
