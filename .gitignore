@@ -1,5 +1,4 @@
-example_program.while
-bin/
+bin/*
 
 # bison/flex generated files:
 *yy.c

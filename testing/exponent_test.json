@@ -1,5 +1,5 @@
 {
-  "program": "example_program.while",
+  "interpreter": "bin/parser",
   "tests": [
     {
       "input": [2,3],
@@ -8,6 +8,10 @@
     {
       "input": [10,0],
       "result": 1
+    },
+    {
+      "input": [3,2],
+      "result": 9
     },
     {
       "input": [11,3],

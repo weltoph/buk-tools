@@ -1,0 +1,16 @@
+x3:=x3+1;
+  while x2/=0 do
+    x5:=x3+0;
+    x6:=x7+0;
+    while x5/=0 do
+      x4:=x1+0;
+      while x4/=0 do
+        x6:=x6+1;
+        x4:=x4+-1
+      end;
+      x5:=x5+-1
+    end;
+    x2:=x2+-1;
+    x3:=x6+0
+  end;
+x0:=x3+0

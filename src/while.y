@@ -145,7 +145,7 @@ int main(int argc, char** argv)
   execute(&prog);
 
   /* output */
-  printf("The result of the computation is %d", prog.variables[0]);
+  printf("%ld\n", prog.variables[0]);
 }
 
 void yyerror(const char *s)
