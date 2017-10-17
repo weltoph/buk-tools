@@ -7,7 +7,10 @@ models:
 * Turingmachines
 * ...
 
-## While Interpreter (whint)
+# Disclaimer
+Note that this is only for educational purposes and not safe to use for anything but playing around with (and even for this I can not give any guarantees...!). Thus, proceed at your own risk.
+
+# While Interpreter (whint)
 The while interpreter can be build with `make while` and produces an executable
 `whint` in the `while` subdirectory. This executable takes as first argument
 the path to a while program (see `while/progs` for examples) and all following
