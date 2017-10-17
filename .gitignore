@@ -1,9 +1,10 @@
-bin/*
-
 # bison/flex generated files:
 *yy.c
 *tab.c
 *tab.h
+
+# executables
+while/whint
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
