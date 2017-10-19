@@ -142,7 +142,8 @@ int main(int argc, char** argv)
     prog.variables[i+1] = atoi(argv[i]);
   }
   /* execute program */
-  execute(&prog);
+  execute_from_top(&prog);
+  free_statements(&prog);
 
   /* output */
   printf("%ld\n", prog.variables[0]);
