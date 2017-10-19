@@ -5,7 +5,11 @@ YACC=bison
 YFLAGS=-d
 CC=gcc
 CCFLAGS=
-DEP=lex.yy.c while.tab.c while.tab.h prog.c prog.h statement.c statement.h
+LEXFILES=$(wildcard *.l)
+YACCFILES=$(wildcard *.y)
+LEXSRC=$(patsubst %.l,%.yy.c,$(LEXFILES))
+YACCSRC=$(patsubst %.y,%.tab.c, $(YACCFILES)) $(patsubst %.y,%.tab.h, $(YACCFILES))
+DEP=$(wildcard *.c *.h) $(LEXSRC) $(YACCSRC)
 INTERMEDSUF=.yy.c .tab.c .tab.h
 
 $(EXENAME) : $(DEP)
@@ -13,8 +17,8 @@ $(EXENAME) : $(DEP)
 
 .PHONY: clean
 
-lex.yy.c : while.l
-	$(LEX) $(LFLAGS) while.l
+%.yy.c : %.l
+	$(LEX) $(LFLAGS) -o $@ $<
 
 %.tab.c %.tab.h : %.y
 	$(YACC) $(YFLAGS) $<
