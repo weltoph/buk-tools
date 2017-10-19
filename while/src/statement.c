@@ -24,6 +24,8 @@ void free_statement(Statement *stmt)
         current = next;
         next = NULL;
       }
+      free(stmt);
+      break;
     case STMT_ASSIGNMENT:
       free(stmt);
       break;

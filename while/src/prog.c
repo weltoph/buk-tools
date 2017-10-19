@@ -24,9 +24,11 @@ void step(Program *p)
   {
     uint8_t lhs = p->current_statement->value.ass.lhs_index;
     uint8_t rhs = p->current_statement->value.ass.rhs_index;
-    int8_t con = p->current_statement->value.ass.constant;
+    int8_t constant = p->current_statement->value.ass.constant;
 
-    p->variables[lhs] = (p->variables[rhs] + con) < 0 ? 0 : (p->variables[rhs] + con);
+    int16_t result = p->variables[rhs] + constant;
+    
+    p->variables[lhs] = result < 0 ? 0 : (uint8_t)result;
     next(p);
   } else {
     uint8_t cond_index = p->current_statement->value.whl.cond_index;

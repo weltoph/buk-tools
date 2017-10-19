@@ -1,4 +1,5 @@
 %{
+#pragma GCC diagnostic ignored "-Wunused-function"
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -55,8 +56,9 @@ prog:
         int8_t const constant    = rhs_ass.constant;
         Statement *this_statement = gen_assignment(lhs_index, rhs_index,
           constant, NULL);
-        if (!this_statement)
+        if (!this_statement) {
           ; /* TODO: error */
+        }
         last_parsed_statement = this_statement;
         $$ = this_statement;
       }
@@ -68,8 +70,9 @@ prog:
         Statement *next          = $5;
         Statement *this_statement = gen_assignment(lhs_index, rhs_index,
           constant, next);
-        if (!this_statement)
+        if (!this_statement) {
           ; /* TODO: error */
+        }
         last_parsed_statement = this_statement;
         $$ = this_statement;
       }
@@ -78,8 +81,9 @@ prog:
         uint8_t const cond_ind = $2;
         Statement *next        = $8;
         Statement *this_statement = gen_while(cond_ind, cond_branch, next);
-        if (!this_statement)
+        if (!this_statement) {
           ; /* TODO: error */
+        }
         last_parsed_statement = this_statement;
         $$ = this_statement;
       }
@@ -87,8 +91,9 @@ prog:
         Statement *cond_branch = $5;
         uint8_t const cond_ind = $2;
         Statement *this_statement = gen_while(cond_ind, cond_branch, NULL);
-        if (!this_statement)
+        if (!this_statement) {
           ; /* TODO: error */
+        }
         last_parsed_statement = this_statement;
         $$ = this_statement;
       }

@@ -6,6 +6,8 @@
 #include "while.tab.h"
 %}
 
+%option noinput
+%option nounput
 
 INDEX 0|[1-9][0-9]*
 WHITESPACE [ \t]*

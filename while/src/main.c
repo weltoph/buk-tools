@@ -44,7 +44,7 @@ int main(int argc, char** argv)
   free_statements(&prog);
 
   /* output */
-  printf("%ld\n", prog.variables[0]);
+  printf("%u\n", prog.variables[0]);
 }
 
 
