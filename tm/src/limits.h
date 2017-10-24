@@ -5,9 +5,9 @@
 
 /*
  * accepted states range from
- *  q0 to q100
+ *  q0 to q30
  */
-#define MAX_STATE_INDEX 100
+#define MAX_STATE_INDEX 30
 
 /*
  * accepted tapealphabet is:
