@@ -42,25 +42,7 @@ typedef struct {
   Action        actions[MAX_TAPEALPHABET_SIZE][MAX_STATE_INDEX + 1];
 } Mapping;
 
-typedef struct {
-  bool characters[MAX_TAPEALPHABET_SIZE];
-} Tapechar_Set;
-
-typedef struct {
-  bool states[MAX_STATE_INDEX + 1];
-} State_Set;
-
 char movement_character(Movement_Direction dir);
-
-void add_states(State_Set *to, State_Set from);
-bool add_state(State_Set *to, uint8_t index);
-bool state_in_set(uint8_t index, State_Set set);
-
-void add_tapechars(Tapechar_Set *to, Tapechar_Set from);
-bool add_tapechar(Tapechar_Set *to, char character);
-bool tapechar_in_set(char character, Tapechar_Set set);
-
-uint8_t tapechar_to_index(char character);
 
 Action_Status check_entry(Mapping map,
     char tapecharacter, uint8_t index);

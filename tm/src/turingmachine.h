@@ -5,6 +5,7 @@
 #include "mapping.h"
 #include "limits.h"
 #include "tape.h"
+#include "set.h"
 
 typedef struct {
   State_Set states;

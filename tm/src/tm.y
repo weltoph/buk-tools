@@ -5,12 +5,14 @@
 
 #include "limits.h"
 #include "mapping.h"
-#include "tm.h"
+#include "turingmachine.h"
 #include "tape.h"
+#include "set.h"
 
 extern int yylex();
 extern int yyparse();
 extern FILE *yyin;
+extern Turingmachine parse_result;
 
 void yyerror(const char *s);
 
@@ -20,11 +22,14 @@ void yyerror(const char *s);
 %code requires {
 #include "limits.h"
 #include "mapping.h"
-#include "tm.h"
+#include "tm.tab.h"
+#include "turingmachine.h"
 #include "tape.h"
+#include "set.h"
 }
 
 %code {
+Turingmachine parse_result;
 }
 
 %union {
@@ -35,7 +40,7 @@ void yyerror(const char *s);
   State_Set stateset;
   Assignment transition;
   Mapping transition_function;
-  Turingmachine tm;
+  void *empty;
 }
 
 %token <index> STATE
@@ -50,7 +55,7 @@ void yyerror(const char *s);
 %token DELIMITER
 %token SETSEP
 
-%type <tm> spec
+%type <empty> spec
 %type <stateset> states
 %type <stateset> staterec
 %type <charset> characters
@@ -83,7 +88,8 @@ spec:
           .blank_symbol = blank_symbol,
           .tape = empty_tape
         };
-        $$ = tm;
+        parse_result = tm;
+        $$ = NULL;
       }
     ;
 
@@ -202,7 +208,7 @@ int main(int argc, char *argv[])
   FILE *myfile = fopen(*argv, "r");
 
   if (!myfile) {
-    printf("Couldn't open file %s", *argv);
+    fprintf(stderr, "Couldn't open file %s", *argv);
     return -1;
   }
 
@@ -211,9 +217,13 @@ int main(int argc, char *argv[])
 
   yyin = myfile;
 
-  do {
-    yyparse();
-  } while (!feof(yyin));
+  int result = yyparse();
+  if(result != 0) {
+    fprintf(stderr, "Parsing failed\n");
+    return -2;
+  }
+  Turingmachine tm = parse_result;
+
   return 0;
 }
 
