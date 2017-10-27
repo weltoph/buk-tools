@@ -1,6 +1,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
+#include <stdint.h>
+
 #include "map.h"
 
 static Node *new_node(char *key, Node *left, Node *right, void *content)
@@ -10,10 +13,15 @@ static Node *new_node(char *key, Node *left, Node *right, void *content)
     fprintf(stderr, "ERROR: could not allocate memory for new Node structure\n");
     return NULL;
   }
-  new->key = key;
+  new->key = malloc(strlen(key) + 1);
+  if(!new->key) {
+    fprintf(stderr, "ERROR: could not allocate memory for String-key in Node\n");
+  }
+  strcpy(new->key, key);
   new->left = left;
   new->right = right;
   new->content = content;
+  return new;
 }
 
 static bool insert_into_node(Node *current, char *key, void *content)
@@ -44,7 +52,6 @@ static bool insert_into_node(Node *current, char *key, void *content)
 
 bool insert(Map *map, char *key, void *content)
 {
-  fprintf(stderr, "LOG: inserting into key %s\n in Map", key);
   if(!key) {
     fprintf(stderr, "ERROR: refuse to insert NULL key into Map\n");
     return false;
@@ -54,7 +61,7 @@ bool insert(Map *map, char *key, void *content)
     return false;
   }
   if(map->root == NULL) {
-    Node *new_root = create_node(key, NULL, NULL, content);
+    Node *new_root = new_node(key, NULL, NULL, content);
     if(!new_root) {
       fprintf(stderr, "ERROR: could not insert key %s into Map (memory error)\n", key);
       return false;
@@ -62,13 +69,12 @@ bool insert(Map *map, char *key, void *content)
     map->root = new_root;
     return true;
   } else {
-    return insert_into_node(map->root);
+    return insert_into_node(map->root, key, content);
   }
 }
 
 void *get(Map *map, char *key)
 {
-  fprintf(stderr, "LOG: requesting key %s\n from Map", key);
   if(!contains_key(map, key)) {
     fprintf(stderr, "ERROR: key %s not present in map, returning invalid value\n", key);
     return NULL;
@@ -86,16 +92,14 @@ void *get(Map *map, char *key)
   return current->content;
 }
 
-static bool contains_key_node(Node *node, char *key)
+static char *contains_key_node(Node *node, char *key)
 {
   if(!node) {
-    fprintf(stderr, "LOG: Map does not have key %s", key);
-    return false;
+    return NULL;
   } else {
     int cmp_value = strcmp(key, node->key);
     if(cmp_value == 0) {
-      fprintf(stderr, "LOG: Map does have key %s", key);
-      return true;
+      return node->key;
     } else if(cmp_value < 0) {
       return contains_key_node(node->left, key);
     } else {
@@ -103,17 +107,15 @@ static bool contains_key_node(Node *node, char *key)
     }
   }
   /* unreachable code */
-  return false;
+  return NULL;
 }
 
-bool contains_key(Map *map, char *key)
+char *contains_key(Map *map, char *key)
 {
-  fprintf(stderr, "LOG: checking presence of key %s in Map", key);
   if(!map->root) {
-    fprintf(stderr, "LOG: empty Map does not contain key %s", key);
-    return false;
+    return NULL;
   }
-  return contains_key_node(map->root);
+  return contains_key_node(map->root, key);
 }
 
 static void free_node(Node *node)
@@ -121,15 +123,22 @@ static void free_node(Node *node)
   if(!node) { return; }
   free_node(node->left);
   free_node(node->right);
-  free(node->content);
   free(node->key);
   free(node);
 }
 
-void free(Map *map)
+void free_map(Map *map)
 {
-  if(!map->root) { return; }
+  if(!map->root) {
+    return;
+  }
   free_node(map->root);
+}
+
+void free_all(Map *map, void (*free_fct)(void *content, char *key))
+{
+  visit_content(map, free_fct);
+  free_map(map);
 }
 
 char *node_keys(Node *node)
@@ -141,7 +150,7 @@ char *node_keys(Node *node)
     /* left and right have keys */
     result = malloc(strlen(left_keys) + 1 + strlen(node->key) + 1 + strlen(right_keys) + 1);
     if(!result) {
-      fprintf(stderr, "ERROR: could not allocate enough memory to represent keys");
+      fprintf(stderr, "ERROR: could not allocate enough memory to represent keys\n");
     } else {
       sprintf(result, "%s,%s,%s", left_keys, node->key, right_keys);
     }
@@ -149,7 +158,7 @@ char *node_keys(Node *node)
     /* only left has keys */
     result = malloc(strlen(left_keys) + 1 + strlen(node->key) + 1);
     if(!result) {
-      fprintf(stderr, "ERROR: could not allocate enough memory to represent keys");
+      fprintf(stderr, "ERROR: could not allocate enough memory to represent keys\n");
     } else {
       sprintf(result, "%s,%s", left_keys, node->key);
     }
@@ -157,7 +166,7 @@ char *node_keys(Node *node)
     /* only right has keys */
     result = malloc(strlen(node->key) + 1 + strlen(right_keys) + 1);
     if(!result) {
-      fprintf(stderr, "ERROR: could not allocate enough memory to represent keys");
+      fprintf(stderr, "ERROR: could not allocate enough memory to represent keys\n");
     } else {
       sprintf(result, "%s,%s", node->key, right_keys);
     }
@@ -165,7 +174,7 @@ char *node_keys(Node *node)
     /* no keys left and right */
     result = malloc(strlen(node->key) + 1);
     if(!result) {
-      fprintf(stderr, "ERROR: could not allocate enough memory to represent keys");
+      fprintf(stderr, "ERROR: could not allocate enough memory to represent keys\n");
     } else {
       sprintf(result, "%s", node->key);
     }
@@ -182,17 +191,35 @@ char *key_set_rep(Map *map)
   if(!map->root) {
     result = malloc(strlen(empty_set) + 1);
     if(!result) {
-      fprintf(stderr, "ERROR: could not allocate memory for key set representation");
+      fprintf(stderr, "ERROR: could not allocate memory for key set representation\n");
     }
     strcpy(result, empty_set);
   } else {
-    char *node_keys = node_keys(map->root);
-    result = malloc(strlen(node_keys) + 2 + 1);
+    char *keys = node_keys(map->root);
+    result = malloc(strlen(keys) + 2 + 1);
     if(!result) {
-      fprintf(stderr, "ERROR: could not allocate memory for key set representation");
+      fprintf(stderr, "ERROR: could not allocate memory for key set representation\n");
     }
-    sprintf(result, "{%s}", node_keys);
-    free(node_keys);
+    sprintf(result, "{%s}", keys);
+    free(keys);
   }
   return result;
+}
+
+Map new_map()
+{
+  return (Map){ .root = NULL };
+}
+
+static void visit_node_content(Node *node, void (*function_ptr)(void *content, char *key))
+{
+  if(!node) { return; }
+  visit_node_content(node->left, function_ptr);
+  visit_node_content(node->right, function_ptr);
+  function_ptr(node->content, node->key);
+}
+void visit_content(Map *map, void (*function_ptr)(void *content, char *key))
+{
+  if(!map->root) { return; }
+  visit_node_content(map->root, function_ptr);
 }

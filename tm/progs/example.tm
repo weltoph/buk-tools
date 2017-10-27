@@ -1,7 +1,9 @@
-{q1, q3};
-{a, b, 8, B, X};
-{b, a};
-B;
-q1;
-q3;
-{ (q1, a) -> (q3, b, L) }
+{a};
+{b};
+{c};
+blank;
+start;
+end;
+{
+  (statefrom1, symbolfrom1) -> (stateto1, symbolto1, R)
+}

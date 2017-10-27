@@ -8,7 +8,7 @@ YACC=bison
 YFLAGS=-d
 
 CC=gcc
-CCFLAGS=
+CCFLAGS=-Wall -Wpedantic -Werror -Wextra -g
 
 LEXFILES=$(wildcard *.l)
 YACCFILES=$(wildcard *.y)
@@ -23,7 +23,7 @@ INTERMEDSUF=.yy.c .tab.c .tab.h
 $(EXEPATH) : $(DEP)
 	$(CC) $(CCFLAGS) -lfl *.c -o $(EXEPATH)
 
-.PHONY: clean
+.PHONY: clean rebuild
 
 %.yy.c : %.l
 	$(LEX) $(LFLAGS) -o $@ $<
@@ -36,3 +36,6 @@ clean :
 	@rm $(addprefix *,$(INTERMEDSUF))
 	@rm $(EXEPATH)
 
+rebuild :
+	$(MAKE) clean
+	$(MAKE)
