@@ -12,6 +12,16 @@ static void free_right(Tapecell *cell)
   for(Tapecell *c = cell->right; c != NULL; c = c->right) { free(c); }
 }
 
+/* creates new Tape */
+Tape new_tape(char *blank_sym)
+{
+  Tapecell *origin = malloc(sizeof(*origin));
+  if(!origin) {
+    fprintf(stderr, "ERROR: memory allocation for a new Tape\n");
+  }
+  return (Tape){ .current = origin, .origin = origin, .blank_symbol = blank_sym};
+}
+
 /* moves left */
 void left(Tape *tape)
 {
@@ -21,6 +31,7 @@ void left(Tape *tape)
     if(!current->left) {
       fprintf(stderr, "ERROR: could not allocate tape for left movement");
     }
+    current->left->right = current;
     current->left->content = tape->blank_symbol;
   }
   tape->current = current->left;
@@ -35,6 +46,7 @@ void right(Tape *tape)
     if(!current->right) {
       fprintf(stderr, "ERROR: could not allocate tape for right movement");
     }
+    current->right->left = current;
     current->right->content = tape->blank_symbol;
   }
   tape->current = current->right;

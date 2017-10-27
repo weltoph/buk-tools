@@ -116,28 +116,81 @@ Action get_action(Transition_Table *table, char *q, char *a)
   return *((Action*)(get(q_row, a)));
 }
 
-void free_action(void *ptr, char *key)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+void free_action(void *ptr, char *key, void *acc)
 {
-  if(false) {
-    fprintf(stderr, "%s\n", key);
-  }
   Action *action = (Action*)ptr;
   free(action->p);
   free(action->b);
   free(action);
 }
-void free_map_proxy(void *ptr, char *key)
+void free_map_proxy(void *ptr, char *key, void *acc)
 {
-  if(false) {
-    fprintf(stderr, "%s\n", key);
-  }
-  free_all((Map *)ptr, &free_action);
+  visit_content((Map *)ptr, NULL, &free_action);
+  free_map((Map *)ptr);
   free(ptr);
 }
+#pragma GCC diagnostic pop
 void free_table(Transition_Table *table)
 {
   if(!table) { return; }
   Map delta = table->delta;
-  free_all(&delta, &free_map_proxy);
+  visit_content(&delta, NULL, &free_map_proxy);
+  free_map(&delta);
   return;
+}
+
+typedef struct {
+  bool value;
+  String_Set *states;
+  String_Set *tapealph;
+  char *end_state;
+  bool outgoing_end;
+  bool incoming_end;
+  char *start_state;
+  bool outgoing_start;
+} Accumulator;
+
+void check_tapealph_consistency(void *content, char *key, void *accumulator)
+{
+  Accumulator *acc = (Accumulator *)accumulator;
+  bool key_in_tapealph = (value_in_set(acc->tapealph, key) != NULL);
+  Action *action = (Action *)content;
+  bool action_state = (value_in_set(acc->states, action->p) != NULL);
+  bool action_tapechar = (value_in_set(acc->tapealph, action->b) != NULL);
+  acc->value &= key_in_tapealph && action_state && action_tapechar;
+  acc->incoming_end |= (strcmp(acc->end_state, action->p) == 0);
+}
+void check_states_consistency(void *content, char *key, void *accumulator)
+{
+  Accumulator *acc = (Accumulator *)accumulator;
+  bool key_in_states = (value_in_set(acc->states, key) != NULL);
+  acc->value &= key_in_states;
+  acc->outgoing_end |= (strcmp(acc->end_state, key) == 0);
+  acc->outgoing_start |= (strcmp(acc->start_state, key) == 0);
+  if(acc->value) {
+    visit_content((Map *)content, acc, &check_tapealph_consistency);
+  }
+}
+bool consistent_table(Transition_Table *table, String_Set *states,
+    String_Set *tapealph, char *start_state, char *end_state)
+{
+  Accumulator acc = (Accumulator){ .value = true, .states = states,
+    .tapealph = tapealph, .outgoing_end = false, .incoming_end = false,
+    .end_state = end_state, .start_state = start_state, .outgoing_start = false};
+  visit_content(&(table->delta), &acc, &check_states_consistency);
+  if(!acc.value) {
+    fprintf(stderr, "\t- not all states / tapecharacters listed in the corresponding sets\n");
+  }
+  if(acc.outgoing_end) {
+    fprintf(stderr, "\t- final state does have an outgoing transition\n");
+  }
+  if(!acc.incoming_end) {
+    fprintf(stderr, "\t- final state does not have an incoming transition\n");
+  }
+  if(!acc.outgoing_start) {
+    fprintf(stderr, "\t- start state does not have an outgoing transition\n");
+  }
+  return acc.value && !acc.outgoing_end && acc.incoming_end && acc.outgoing_start;
 }

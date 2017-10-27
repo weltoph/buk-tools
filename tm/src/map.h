@@ -51,11 +51,6 @@ char *contains_key(Map *map, char *key);
 void free_map(Map *map);
 
 /*
- * executes free_fct on all contents and afterwards calls free_map(map)
- */
-void free_all(Map *map, void (*free_fct)(void *content, char *key));
-
-/*
  * creates a string representation of the key set which is provided to the
  * caller (and has to be free'd by him)
  */
@@ -64,4 +59,5 @@ char *key_set_rep(Map *map);
 /*
  * executes given function on all content values
  */
-void visit_content(Map *map, void (*function_ptr)(void *content, char *key));
+void visit_content(Map *map, void *init_acc,
+    void (*function_ptr)(void *content, char *key, void *accumulator));

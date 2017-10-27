@@ -34,6 +34,7 @@ $(EXEPATH) : $(DEP)
 
 clean :
 	@rm $(addprefix *,$(INTERMEDSUF))
+	@rm vgcore*
 	@rm $(EXEPATH)
 
 rebuild :

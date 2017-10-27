@@ -3,6 +3,9 @@
 *tab.c
 *tab.h
 
+# valgrind
+vgcore*
+
 # executables
 while/whint
 tm/tmint

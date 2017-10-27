@@ -16,6 +16,9 @@ typedef struct {
   char *blank_symbol;
 } Tape;
 
+/* creates new Tape */
+Tape new_tape(char *blank_sym);
+
 /* moves left */
 void left(Tape *tape);
 

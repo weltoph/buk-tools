@@ -60,3 +60,27 @@ String_Set new_set()
   return (String_Set){ .set = intern };
 }
 
+
+typedef struct {
+  bool value;
+  String_Set *super;
+} Accumulation;
+/* check_subset is meant as visitor provided to visit_content and therefore has
+ * to have a specific signature but since we do not need the content parameter
+ * gcc issues a unused-paramter warning which we disable temporarily here
+ */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+void check_subset(void *content, char *key, void *accumulator)
+{
+  Accumulation *acc = (Accumulation *)accumulator;
+  bool key_in_super = (value_in_set(acc->super, key) != NULL);
+  acc->value &= key_in_super;
+}
+#pragma GCC diagnostic pop
+bool is_subset(String_Set *sub, String_Set *super)
+{
+  Accumulation acc = (Accumulation){ .value = true, .super = super};
+  visit_content(sub->set, &acc, &check_subset);
+  return acc.value;
+}

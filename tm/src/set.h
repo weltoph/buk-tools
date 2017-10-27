@@ -34,3 +34,8 @@ char *set_repr(String_Set *set);
  * free's the set
  */
 void free_set(String_Set *set);
+
+/*
+ * checks if sub is subset of super
+ */
+bool is_subset(String_Set *sub, String_Set *super);

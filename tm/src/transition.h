@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 #include "map.h"
+#include "set.h"
 
 typedef enum {
   LEFT,
@@ -45,3 +46,10 @@ void add_trans(Transition_Table *table, Transition trans);
 Action get_action(Transition_Table *table, char *q, char *a);
 
 void free_table(Transition_Table *table);
+
+/* checks if all transitions in table fit to states and tapealph 
+ * and end state does not have an outgoing but at least one incoming
+ * transition and the start state does have at least one outgoing transition*/
+bool consistent_table(Transition_Table *table, String_Set *states,
+    String_Set *tapealph, char *start_state, char *end_state);
+

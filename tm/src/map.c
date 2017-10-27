@@ -135,12 +135,6 @@ void free_map(Map *map)
   free_node(map->root);
 }
 
-void free_all(Map *map, void (*free_fct)(void *content, char *key))
-{
-  visit_content(map, free_fct);
-  free_map(map);
-}
-
 char *node_keys(Node *node)
 {
   char *left_keys = node->left ? node_keys(node->left) : NULL;
@@ -211,15 +205,18 @@ Map new_map()
   return (Map){ .root = NULL };
 }
 
-static void visit_node_content(Node *node, void (*function_ptr)(void *content, char *key))
+static void visit_node_content(Node *node, void *acc,
+    void (*function_ptr)(void *content, char *key, void *accumulator))
 {
   if(!node) { return; }
-  visit_node_content(node->left, function_ptr);
-  visit_node_content(node->right, function_ptr);
-  function_ptr(node->content, node->key);
+  visit_node_content(node->left, acc, function_ptr);
+  visit_node_content(node->right, acc, function_ptr);
+  function_ptr(node->content, node->key, acc);
 }
-void visit_content(Map *map, void (*function_ptr)(void *content, char *key))
+
+void visit_content(Map *map, void *init_acc,
+    void (*function_ptr)(void *content, char *key, void *accumulator))
 {
   if(!map->root) { return; }
-  visit_node_content(map->root, function_ptr);
+  visit_node_content(map->root, init_acc, function_ptr);
 }
