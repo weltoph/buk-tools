@@ -17,3 +17,6 @@ the path to a while program (see `while/progs` for examples) and all following
 paramters are parsed as inputs to the program and stored in the starting
 registers.
 
+# Turingmachine Interpreter (tmint)
+Can be build with `make tm` which produces an executable `tmint`.
+
