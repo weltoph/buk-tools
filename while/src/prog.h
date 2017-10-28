@@ -4,7 +4,7 @@
 #define MAX_INDEX 100
 
 typedef struct{
-  uint32_t variables[MAX_INDEX];
+  uint32_t variables[MAX_INDEX + 1];
   Statement *current_statement;
   Statement *program_begin;
 } Program;
