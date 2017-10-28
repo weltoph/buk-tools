@@ -20,12 +20,14 @@ programming models and maybe a few esoteric programming languages, e.g.
 * loop-language
 * Brainfuck
 * ...
+
 Also a few more examples for the implemented programming languages can be
 contributed, e.g. for solving some common programming tasks:
 * basic mathematical operations (addition, multiplication, square root, ...) in
 binary or decimal system
 * implementing characteristic functions for some languages (binary string that
 are palindromes, ...)
+
 Other maintenance tasks are always open which include but are not limited to:
 * improving the user interfaces of the programs
 * adding documentation (for code but also descriptions for the models)
@@ -58,7 +60,7 @@ corresponding variables `x1, ..., xN`. For example `whint program.while 0 1`.
 # Turingmachine Interpreter (tmint)
 A Turingmachine is a tupel `(Q, \Sigma, \Gamma, B, q0, q, \delta)` with a set
 of states `Q`, a set of input/output symbols `\Sigma`, a set of tape symbols
-`\Gamma`, a blank symbol `B` which is `\Gamma' but not in `\Sigma`, a start
+`\Gamma`, a blank symbol `B` which is in `\Gamma` but not in `\Sigma`, a start
 state `q0` and end state `q` from `Q` and a transition function
 `\delta: Qx\Gamma -> Qx\Gamma x {L, R, N}`. The input/output behaviour is
 defined as follows: in the beginning the head position of the Turingmachine
