@@ -8,154 +8,154 @@
 
 %option noinput
 %option nounput
-%option lineno
+%option yylineno
 
 VALUE [0-9]|[1-9][0-9]+
 LABELCHAR [0-9a-z]
 
 %%
 
-[ \t]
+[ \t\n]
 
 {VALUE} {
   yylval.value = (uint8_t)(atoi(yytext));
-  return VALUE;
+  return VALUE_TOK;
 }
 
 ${LABELCHAR}{1,29} {
   strcpy(yylval.name, yytext);
-  return LABEL;
+  return LABEL_TOK;
 }
 
 LOAD {
-  yylval.instruction = { .type = LOAD, .variant = STANDARD }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = LOAD, .variant = STANDARD };
+  return INSTRUCTION_TOK;
 }
 
 STORE {
-  yylval.instruction = { .type = STORE, .variant = STANDARD }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = STORE, .variant = STANDARD };
+  return INSTRUCTION_TOK;
 }
 
 ADD {
-  yylval.instruction = { .type = ADD, .variant = STANDARD }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = ADD, .variant = STANDARD };
+  return INSTRUCTION_TOK;
 }
 
 SUB {
-  yylval.instruction = { .type = SUB, .variant = STANDARD }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = SUB, .variant = STANDARD };
+  return INSTRUCTION_TOK;
 }
 
 MULT {
-  yylval.instruction = { .type = MULT, .variant = STANDARD }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = MULT, .variant = STANDARD };
+  return INSTRUCTION_TOK;
 }
 
 
 DIV {
-  yylval.instruction = { .type = DIV, .variant = STANDARD }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = DIV, .variant = STANDARD };
+  return INSTRUCTION_TOK;
 }
 
 INDLOAD {
-  yylval.instruction = { .type = LOAD, .variant = INDIRECT }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = LOAD, .variant = INDIRECT };
+  return INSTRUCTION_TOK;
 }
 
 INDSTORE {
-  yylval.instruction = { .type = STORE, .variant = INDIRECT }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = STORE, .variant = INDIRECT };
+  return INSTRUCTION_TOK;
 }
 
 INDADD {
-  yylval.instruction = { .type = ADD, .variant = INDIRECT }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = ADD, .variant = INDIRECT };
+  return INSTRUCTION_TOK;
 }
 
 INDSUB {
-  yylval.instruction = { .type = SUB, .variant = INDIRECT }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = SUB, .variant = INDIRECT };
+  return INSTRUCTION_TOK;
 }
 
 INDMULT {
-  yylval.instruction = { .type = MULT, .variant = INDIRECT }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = MULT, .variant = INDIRECT };
+  return INSTRUCTION_TOK;
 }
 
 INDDIV {
-  yylval.instruction = { .type = DIV, .variant = INDIRECT }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = DIV, .variant = INDIRECT };
+  return INSTRUCTION_TOK;
 }
 
 CLOAD {
-  yylval.instruction = { .type = LOAD, .variant = CONSTANT }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = LOAD, .variant = CONSTANT };
+  return INSTRUCTION_TOK;
 }
 
 CADD {
-  yylval.instruction = { .type = ADD, .variant = CONSTANT }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = ADD, .variant = CONSTANT };
+  return INSTRUCTION_TOK;
 }
 
 CSUB {
-  yylval.instruction = { .type = SUB, .variant = CONSTANT }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = SUB, .variant = CONSTANT };
+  return INSTRUCTION_TOK;
 }
 
 CMULT {
-  yylval.instruction = { .type = MULT, .variant = CONSTANT }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = MULT, .variant = CONSTANT };
+  return INSTRUCTION_TOK;
 }
 
 CDIV {
-  yylval.instruction = { .type = DIV, .variant = CONSTANT }
-  return INSTRUCTION;
+  yylval.instruction = (Instruction){ .type = DIV, .variant = CONSTANT };
+  return INSTRUCTION_TOK;
 }
 
-< {
+\< {
   yylval.comparison_type = LE;
-  return CMP;
+  return CMP_TOK;
 }
 
-<= {
+\<= {
   yylval.comparison_type = LEQ;
-  return CMP;
+  return CMP_TOK;
 }
 
 = {
   yylval.comparison_type = EQ;
-  return CMP;
+  return CMP_TOK;
 }
 
 >= {
   yylval.comparison_type = GEQ;
-  return CMP;
+  return CMP_TOK;
 }
 
 > {
   yylval.comparison_type = GR;
-  return CMP;
+  return CMP_TOK;
 }
 
 END {
-  return END;
+  return END_TOK;
 }
 
 GOTO {
-  return GOTO;
+  return GOTO_TOK;
 }
 
 IFc(0) {
-  return IF;
+  return IF_TOK;
 }
 
 THEN {
-  return THEN;
+  return THEN_TOK;
 }
 
-\n|; {
-  return DELIMITER;
+; {
+  return DELIMITER_TOK;
 }
 
 %%

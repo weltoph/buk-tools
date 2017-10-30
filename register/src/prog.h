@@ -43,12 +43,13 @@ typedef struct Cmd Command;
 
 struct Cmd {
   Command_Type type;
+  Instruction instruction;
   uint8_t value;
   char label[30];
   Cmp_Type cmp_type;
   Command *next;
   Command *prev;
-}
+};
 
 typedef struct {
   Command *first;
@@ -67,4 +68,6 @@ Command *new_end();
 Command *new_jmp(char *label);
 Command *new_cond(Cmp_Type cmp_type, uint8_t cmp_value, char *label);
 Command *new_label(char *label);
+
+char *cmd_to_string(Command *cmd);
 

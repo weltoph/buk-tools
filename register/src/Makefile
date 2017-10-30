@@ -1,4 +1,4 @@
-EXENAME=tmint
+EXENAME=reint
 EXEPATH=../$(EXENAME)
 
 LEX=flex
@@ -9,6 +9,8 @@ YFLAGS=-d
 
 CC=gcc
 CCFLAGS=-Wall -Wpedantic -Werror -Wextra -g
+
+UTILPATH=../../util
 
 LEXFILES=$(wildcard *.l)
 YACCFILES=$(wildcard *.y)
@@ -21,7 +23,7 @@ INTERMEDSUF=.yy.c .tab.c .tab.h
 
 
 $(EXEPATH) : $(DEP)
-	$(CC) $(CCFLAGS) -lfl *.c -o $(EXEPATH)
+	$(CC) $(CCFLAGS) -lfl *.c $(UTILPATH)/*.c -o $(EXEPATH)
 
 .PHONY: clean rebuild
 

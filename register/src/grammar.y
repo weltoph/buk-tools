@@ -18,10 +18,11 @@ void yyerror(const char *s);
 
 %code requires {
 #include "grammar.tab.h"
+#include "prog.h"
 }
 
 %code {
-Prog *parse_result = new_prog();
+Prog *parse_result = NULL;
 }
 %union {
   Command *cmd;
@@ -31,71 +32,81 @@ Prog *parse_result = new_prog();
   uint8_t value;
 }
 
-%token <instruction> INSTRUCTION
-%token <comparison_type> CMP
-%token END
-%token GOTO
-%token IF
-%token THEN
-%token <value> VALUE
-%token <name> LABEL
-%token DELIMITER
+%token <instruction> INSTRUCTION_TOK
+%token <comparison_type> CMP_TOK
+%token END_TOK
+%token GOTO_TOK
+%token IF_TOK
+%token THEN_TOK
+%token <value> VALUE_TOK
+%token <name> LABEL_TOK
+%token DELIMITER_TOK
 
-%type prog
+%type <cmd> prog
 %type <cmd> cmd
 
 %%
 prog: cmd {
+      if(!parse_result) { parse_result = new_prog(); }
       const bool success = append_command(parse_result, $1);
       if(!success) {
-        fprintf(stderr, "PARSE-ERROR: could not parse line #%i\n", lineno);
+        fprintf(stderr, "PARSE-ERROR: could not parse line #%i\n", yylineno);
         YYABORT;
       }
+      char *repr = cmd_to_string($1);
+      fprintf(stderr, "LOG: parsed: %s\n", repr);
+      free(repr);
+      $$ = $1;
     }
-    | prog DELIMITER cmd {
+    | prog DELIMITER_TOK cmd {
+      if(!parse_result) { parse_result = new_prog(); }
       const bool success = append_command(parse_result, $3);
       if(!success) {
-        fprintf(stderr, "PARSE-ERROR: could not parse line #%i\n", lineno);
+        fprintf(stderr, "PARSE-ERROR: could not parse line #%i\n", yylineno);
         YYABORT;
       }
+      char *repr = cmd_to_string($3);
+      fprintf(stderr, "LOG: parsed: %s\n", repr);
+      free(repr);
+      $$ = $1;
     }
     ;
-cmd: INSTRUCTION VALUE {
+cmd: INSTRUCTION_TOK VALUE_TOK {
       Command *value = new_instruction($1, $2);
       if(!value) {
-        fprintf(stderr, "PARSE-ERROR: could not parse line #%i\n", lineno);
+        fprintf(stderr, "PARSE-ERROR: could not parse line #%i\n", yylineno);
         YYABORT;
       }
       $$ = value;
    }
-   | GOTO LABEL {
+   | GOTO_TOK LABEL_TOK {
       Command *value = new_jmp($2);
       if(!value) {
-        fprintf(stderr, "PARSE-ERROR: could not parse line #%i\n", lineno);
+        fprintf(stderr, "PARSE-ERROR: could not parse line #%i\n", yylineno);
         YYABORT;
       }
       $$ = value;
     }
-    | IF CMP VALUE THEN GOTO LABEL {
+    | IF_TOK CMP_TOK VALUE_TOK THEN_TOK GOTO_TOK LABEL_TOK {
       Command *value = new_cond($2, $3, $6);
       if(!value) {
-        fprintf(stderr, "PARSE-ERROR: could not parse line #%i\n", lineno);
+        fprintf(stderr, "PARSE-ERROR: could not parse line #%i\n", yylineno);
         YYABORT;
       }
       $$ = value;
     }
-    | END {
+    | END_TOK {
       Command *value = new_end();
       if(!value) {
-        fprintf(stderr, "PARSE-ERROR: could not parse line #%i\n", lineno);
+        fprintf(stderr, "PARSE-ERROR: could not parse line #%i\n", yylineno);
         YYABORT;
       }
       $$ = value;
     }
-    | LABEL {
+    | LABEL_TOK {
       Command *value = new_label($1);
       if(!value) {
-        fprintf(stderr, "PARSE-ERROR: could not parse line #%i\n", lineno);
+        fprintf(stderr, "PARSE-ERROR: could not parse line #%i\n", yylineno);
         YYABORT;
       }
       $$ = value;
