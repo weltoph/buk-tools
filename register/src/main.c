@@ -7,6 +7,7 @@
 #include "prog.h"
 
 extern FILE *yyin;
+extern Prog *parse_result;
 
 int main(int argc, char *argv[])
 {
@@ -28,6 +29,13 @@ int main(int argc, char *argv[])
   if(result != 0) {
     fprintf(stderr, "Parsing failed\n");
     return -2;
+  }
+
+  Prog *prog = parse_result;
+
+  if(!consistency_check(prog)) {
+    fprintf(stderr, "Program inconsistent\n");
+    return -3;
   }
 }
 

@@ -27,134 +27,134 @@ ${LABELCHAR}{1,29} {
   return LABEL_TOK;
 }
 
-LOAD {
+"LOAD" {
   yylval.instruction = (Instruction){ .type = LOAD, .variant = STANDARD };
   return INSTRUCTION_TOK;
 }
 
-STORE {
+"STORE" {
   yylval.instruction = (Instruction){ .type = STORE, .variant = STANDARD };
   return INSTRUCTION_TOK;
 }
 
-ADD {
+"ADD" {
   yylval.instruction = (Instruction){ .type = ADD, .variant = STANDARD };
   return INSTRUCTION_TOK;
 }
 
-SUB {
+"SUB" {
   yylval.instruction = (Instruction){ .type = SUB, .variant = STANDARD };
   return INSTRUCTION_TOK;
 }
 
-MULT {
+"MULT" {
   yylval.instruction = (Instruction){ .type = MULT, .variant = STANDARD };
   return INSTRUCTION_TOK;
 }
 
 
-DIV {
+"DIV" {
   yylval.instruction = (Instruction){ .type = DIV, .variant = STANDARD };
   return INSTRUCTION_TOK;
 }
 
-INDLOAD {
+"INDLOAD" {
   yylval.instruction = (Instruction){ .type = LOAD, .variant = INDIRECT };
   return INSTRUCTION_TOK;
 }
 
-INDSTORE {
+"INDSTORE" {
   yylval.instruction = (Instruction){ .type = STORE, .variant = INDIRECT };
   return INSTRUCTION_TOK;
 }
 
-INDADD {
+"INDADD" {
   yylval.instruction = (Instruction){ .type = ADD, .variant = INDIRECT };
   return INSTRUCTION_TOK;
 }
 
-INDSUB {
+"INDSUB" {
   yylval.instruction = (Instruction){ .type = SUB, .variant = INDIRECT };
   return INSTRUCTION_TOK;
 }
 
-INDMULT {
+"INDMULT" {
   yylval.instruction = (Instruction){ .type = MULT, .variant = INDIRECT };
   return INSTRUCTION_TOK;
 }
 
-INDDIV {
+"INDDIV" {
   yylval.instruction = (Instruction){ .type = DIV, .variant = INDIRECT };
   return INSTRUCTION_TOK;
 }
 
-CLOAD {
+"CLOAD" {
   yylval.instruction = (Instruction){ .type = LOAD, .variant = CONSTANT };
   return INSTRUCTION_TOK;
 }
 
-CADD {
+"CADD" {
   yylval.instruction = (Instruction){ .type = ADD, .variant = CONSTANT };
   return INSTRUCTION_TOK;
 }
 
-CSUB {
+"CSUB" {
   yylval.instruction = (Instruction){ .type = SUB, .variant = CONSTANT };
   return INSTRUCTION_TOK;
 }
 
-CMULT {
+"CMULT" {
   yylval.instruction = (Instruction){ .type = MULT, .variant = CONSTANT };
   return INSTRUCTION_TOK;
 }
 
-CDIV {
+"CDIV" {
   yylval.instruction = (Instruction){ .type = DIV, .variant = CONSTANT };
   return INSTRUCTION_TOK;
 }
 
-\< {
-  yylval.comparison_type = LE;
-  return CMP_TOK;
-}
-
-\<= {
+"<=" {
   yylval.comparison_type = LEQ;
   return CMP_TOK;
 }
 
-= {
+"<" {
+  yylval.comparison_type = LE;
+  return CMP_TOK;
+}
+
+"=" {
   yylval.comparison_type = EQ;
   return CMP_TOK;
 }
 
->= {
+">=" {
   yylval.comparison_type = GEQ;
   return CMP_TOK;
 }
 
-> {
+">" {
   yylval.comparison_type = GR;
   return CMP_TOK;
 }
 
-END {
+"END" {
   return END_TOK;
 }
 
-GOTO {
+"GOTO" {
   return GOTO_TOK;
 }
 
-IFc(0) {
+"IF c(0)" {
   return IF_TOK;
 }
 
-THEN {
+"THEN" {
   return THEN_TOK;
 }
 
-; {
+";" {
   return DELIMITER_TOK;
 }
 

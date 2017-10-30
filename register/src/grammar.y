@@ -54,7 +54,6 @@ prog: cmd {
         YYABORT;
       }
       char *repr = cmd_to_string($1);
-      fprintf(stderr, "LOG: parsed: %s\n", repr);
       free(repr);
       $$ = $1;
     }
@@ -66,8 +65,10 @@ prog: cmd {
         YYABORT;
       }
       char *repr = cmd_to_string($3);
-      fprintf(stderr, "LOG: parsed: %s\n", repr);
       free(repr);
+      $$ = $1;
+    }
+    | prog DELIMITER_TOK {
       $$ = $1;
     }
     ;

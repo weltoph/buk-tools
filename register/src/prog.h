@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include "../../util/map.h"
 
+#define MAX_INDEX 100
+
 typedef enum {
   LOAD,
   STORE,
@@ -56,6 +58,7 @@ typedef struct {
   Command *last;
   Command *current;
   Map *label_store;
+  uint8_t registers[MAX_INDEX + 1];
 } Prog;
 
 /* allocates necessary ressources, leaves first, last and current at NULL */
@@ -70,4 +73,7 @@ Command *new_cond(Cmp_Type cmp_type, uint8_t cmp_value, char *label);
 Command *new_label(char *label);
 
 char *cmd_to_string(Command *cmd);
+
+bool consistency_check(Prog *prog);
+void step(Prog *prog);
 

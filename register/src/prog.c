@@ -13,6 +13,10 @@ Prog *new_prog()
   if(!ret->label_store) {
     return NULL;
   }
+  /* init all registers to 0; this might be redundant */
+  for(uint8_t i = 0; i <= MAX_INDEX; i++) {
+    (ret->registers)[i] = 0;
+  }
   return ret;
 }
 
@@ -202,4 +206,34 @@ char *cmd_to_string(Command *cmd)
       break;
   }
   return repr;
+}
+
+
+bool consistency_check(Prog *prog)
+{
+  if(!prog) { return true; }
+  if(!prog->first) { return true; }
+  for(Command *curr = prog->first; curr != NULL; curr = curr->next) {
+    if(curr->type == JMP || curr->type == COND || curr->type == LABEL) {
+      if(!contains_key(prog->label_store, curr->label)) {
+        fprintf(stderr, "CONSISTENCY-ERROR: label %s is unknown\n", curr->label);
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+void step(Prog *prog)
+{
+  Command *current = prog->current;
+  switch(current->type) {
+    case INST:  break;
+    case END:   break;
+    case JMP:   break;
+    case COND:  break;
+    case LABEL: break;
+    default:    fprintf(stderr, "RUNTIME-ERROR: executing unrecognized command\n");
+                break;
+  }
 }
