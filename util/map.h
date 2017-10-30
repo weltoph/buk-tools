@@ -23,7 +23,7 @@ struct Map_Node {
 /*
  * initialises a new map
  */
-Map new_map();
+Map *new_map();
 
 /*
  * insert content in map with key

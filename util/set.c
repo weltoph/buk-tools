@@ -51,13 +51,7 @@ void free_set(String_Set *set)
 
 String_Set new_set()
 {
-  Map *intern = malloc(sizeof(*intern));
-  if(!intern) {
-    fprintf(stderr, "ERROR: memory error on allocating internals of Set\n");
-  } else {
-    *intern = new_map();
-  }
-  return (String_Set){ .set = intern };
+  return (String_Set){ .set = new_map() };
 }
 
 

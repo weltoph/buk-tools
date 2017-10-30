@@ -62,7 +62,7 @@ void add_trans(Transition_Table *table, Transition trans)
 {
   char *q = trans.q;
   char *a = trans.a;
-  Map *delta = &(table->delta);
+  Map *delta = table->delta;
   Action *act_ptr = malloc(sizeof(*act_ptr));
   if(!act_ptr) {
     fprintf(stderr, "ERROR: memory allocation for inserting Action in\
@@ -74,8 +74,7 @@ void add_trans(Transition_Table *table, Transition trans)
   if(contains_key(delta, q)) {
     q_row = (Map*) get(delta, q);
   } else {
-    q_row = malloc(sizeof(*q_row));
-    *q_row = new_map();
+    q_row = new_map();
     insert(delta, q, q_row);
   }
   if(contains_key(q_row, a)) {
@@ -101,7 +100,7 @@ Action get_action(Transition_Table *table, char *q, char *a)
         (%s, %s)\n", q, a);
     return noop;
   }
-  Map *delta = &(table->delta);
+  Map *delta = table->delta;
   if(!contains_key(delta, q)) {
     fprintf(stderr, "ERROR: trying to access a not-set Action in\
         Transition_Table at pair (%s, %s)\n", q, a);
@@ -135,9 +134,10 @@ void free_map_proxy(void *ptr, char *key, void *acc)
 void free_table(Transition_Table *table)
 {
   if(!table) { return; }
-  Map delta = table->delta;
-  visit_content(&delta, NULL, &free_map_proxy);
-  free_map(&delta);
+  Map *delta = table->delta;
+  visit_content(delta, NULL, &free_map_proxy);
+  free_map(delta);
+  free(delta);
   return;
 }
 
@@ -179,7 +179,7 @@ bool consistent_table(Transition_Table *table, String_Set *states,
   Accumulator acc = (Accumulator){ .value = true, .states = states,
     .tapealph = tapealph, .outgoing_end = false, .incoming_end = false,
     .end_state = end_state, .start_state = start_state, .outgoing_start = false};
-  visit_content(&(table->delta), &acc, &check_states_consistency);
+  visit_content(table->delta, &acc, &check_states_consistency);
   if(!acc.value) {
     fprintf(stderr, "\t- not all states / tapecharacters listed in the corresponding sets\n");
   }

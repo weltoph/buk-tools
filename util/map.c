@@ -200,9 +200,15 @@ char *key_set_rep(Map *map)
   return result;
 }
 
-Map new_map()
+Map *new_map()
 {
-  return (Map){ .root = NULL };
+  Map *ret = malloc(sizeof(*ret));
+  if(!ret) {
+    fprintf(stderr, "ERROR: memory allocation for Map failed\n");
+    return NULL;
+  }
+  ret->root = NULL;
+  return ret;
 }
 
 static void visit_node_content(Node *node, void *acc,
