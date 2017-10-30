@@ -28,7 +28,7 @@ typedef struct {
 } Transition;
 
 typedef struct {
-  Map delta;
+  Map *delta;
 } Transition_Table;
 
 Transition_Table new_trans_table();
