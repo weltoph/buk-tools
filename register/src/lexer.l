@@ -8,6 +8,7 @@
 
 %option noinput
 %option nounput
+%option lineno
 
 VALUE [0-9]|[1-9][0-9]+
 LABELCHAR [0-9a-z]
@@ -145,7 +146,7 @@ GOTO {
   return GOTO;
 }
 
-IF {
+IFc(0) {
   return IF;
 }
 

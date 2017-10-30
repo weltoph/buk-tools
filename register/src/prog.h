@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include "../../util/map.h"
 
 typedef enum {
   LOAD,
@@ -42,14 +43,9 @@ typedef struct Cmd Command;
 
 struct Cmd {
   Command_Type type;
-  union {
-    uint8_t argument;
-    struct {
-      bool is_conditional;
-      uint8_t cmp_value;
-      char label[30];
-    } cond_arguments;
-  } data;
+  uint8_t value;
+  char label[30];
+  Cmp_Type cmp_type;
   Command *next;
   Command *prev;
 }
@@ -58,11 +54,17 @@ typedef struct {
   Command *first;
   Command *last;
   Command *current;
+  Map *label_store;
 } Prog;
 
-bool append_instruction(Prog *prog, Instruction instruction, uint8_t argument);
-bool append_end(Prog *prog);
-bool append_jmp(Prog *prog, char *label);
-bool append_cond(Prog *prog, uint8_t cmp_value, char *label);
-bool append_label(Prog *prog, char *label);
+/* allocates necessary ressources, leaves first, last and current at NULL */
+Prog *new_prog();
+
+bool append_command(Prog *prog, Command *cmd);
+
+Command *new_instruction(Instruction instruction, uint8_t argument);
+Command *new_end();
+Command *new_jmp(char *label);
+Command *new_cond(Cmp_Type cmp_type, uint8_t cmp_value, char *label);
+Command *new_label(char *label);
 
