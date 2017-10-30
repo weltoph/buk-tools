@@ -35,9 +35,7 @@ void yyerror(const char *s);
 %token THEN
 %token <value> VALUE
 %token <name> LABEL
-
-%type
-
+%token DELIMITER
 
 %%
 

@@ -153,4 +153,8 @@ THEN {
   return THEN;
 }
 
+\n|; {
+  return DELIMITER;
+}
+
 %%
