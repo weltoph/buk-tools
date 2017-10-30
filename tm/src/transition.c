@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "map.h"
+#include "../../util/map.h"
 #include "transition.h"
 
 static char dir_to_char(MOVEMENT_DIRECTION X)

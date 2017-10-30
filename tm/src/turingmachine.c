@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "turingmachine.h"
 #include "transition.h"
-#include "set.h"
+#include "../../util/set.h"
 
 Turingmachine tm;
 

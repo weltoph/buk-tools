@@ -5,8 +5,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "map.h"
-#include "set.h"
+#include "../../util/map.h"
+#include "../../util/set.h"
 
 typedef enum {
   LEFT,

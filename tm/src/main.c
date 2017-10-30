@@ -4,7 +4,7 @@
 
 #include "grammar.tab.h"
 #include "tape.h"
-#include "set.h"
+#include "../../util/set.h"
 #include "turingmachine.h"
 #include "transition.h"
 

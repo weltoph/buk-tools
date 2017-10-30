@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "set.h"
+#include "../../util/set.h"
 #include "transition.h"
 #include "tape.h"
 #include "turingmachine.h"
@@ -20,7 +20,7 @@ void yyerror(const char *s);
 
 %code requires {
 #include "grammar.tab.h"
-#include "set.h"
+#include "../../util/set.h"
 #include "transition.h"
 }
 
