@@ -37,5 +37,13 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Program inconsistent\n");
     return -3;
   }
+  
+  for(uint8_t i = 0; i < argc; i++) {
+    uint8_t value = (uint8_t)atoi(argv[i]);
+    set_reg(prog, i+1, value);
+  }
+
+  exec(prog);
+  print_registers(prog, 1, 1);
 }
 

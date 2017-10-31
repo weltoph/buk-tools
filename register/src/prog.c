@@ -54,7 +54,10 @@ bool append_command(Prog *prog, Command *cmd)
       fprintf(stderr, "ERROR: inserting a label twice into Prog\n");
       return false;
     } else {
-      insert(prog->label_store, cmd->label, cmd);
+      const bool success = insert(prog->label_store, cmd->label, cmd);
+      if(!success) {
+        fprintf(stderr, "ERROR: insertion label %s into store failed!", cmd->label);
+      }
     }
   }
   return true;
@@ -170,7 +173,7 @@ char *cmd_to_string(Command *cmd)
   const char end_string[] = "END";
   const char if_string[] = "IF c(0)";
   const char goto_string[] = "GOTO ";
-  const char then_goto_string[] = "THEN GOTO ";
+  const char then_goto_string[] = " THEN GOTO ";
   const char number_dummy[] = "xxx";
   switch(cmd->type) {
     case INST:
@@ -187,8 +190,8 @@ char *cmd_to_string(Command *cmd)
       cmp_string = cmp_to_string(cmd->cmp_type);
       repr = malloc(strlen(if_string) + strlen(cmp_string)
           + strlen(number_dummy) + strlen(then_goto_string)
-          + strlen(cmd->label) + 1);
-      sprintf(repr, "%s%s%u%s%s", if_string, cmp_string, cmd->value,
+          + strlen(cmd->label) + 1 + 1);
+      sprintf(repr, "%s%s%u%s$%s", if_string, cmp_string, cmd->value,
         then_goto_string, cmd->label);
       free(cmp_string);
       break;
@@ -197,8 +200,8 @@ char *cmd_to_string(Command *cmd)
       sprintf(repr, "%s%s", goto_string, cmd->label);
       break;
     case LABEL:
-      repr = malloc(strlen(cmd->label) + 1);
-      strcpy(repr, cmd->label);
+      repr = malloc(strlen(cmd->label) + 1 + 1);
+      sprintf(repr, "$%s", cmd->label);
       break;
     default:
       repr = malloc(2);
@@ -206,6 +209,13 @@ char *cmd_to_string(Command *cmd)
       break;
   }
   return repr;
+}
+
+void cmd_fprint(FILE *dest, Command *cmd)
+{
+  char *repr = cmd_to_string(cmd);
+  fprintf(dest, "%s", repr);
+  free(repr);
 }
 
 
@@ -224,16 +234,145 @@ bool consistency_check(Prog *prog)
   return true;
 }
 
+static bool is_valid_index(uint8_t param)
+{
+  return param <= MAX_INDEX;
+}
+
+uint8_t get_reg(Prog *prog, uint8_t index)
+{
+  if(!is_valid_index(index)) {
+    fprintf(stderr, "RUNTIME-ERROR: accessing (read) out-of-range register %u\n",
+        index);
+    return 0;
+  }
+  return (prog->registers)[index];
+}
+
+static uint8_t get_instr_param(Prog *prog, uint8_t param, Instruction_Variant variant)
+{
+  switch(variant) {
+    case CONSTANT: return param;
+                   break;
+    case STANDARD: return get_reg(prog, param);
+                   break;
+    case INDIRECT: return get_reg(prog, get_reg(prog, param));
+                   break;
+    default: fprintf(stderr, "RUNTIME-ERROR: unknown instruction variant\n");
+             return param;
+             break;
+  }
+}
+
+void set_reg(Prog *prog, uint8_t index, uint8_t value)
+{
+  if(!is_valid_index(index)) {
+    fprintf(stderr, "RUNTIME-ERROR: accessing (write) out-of-range register %u\n",
+        index);
+    return;
+  }
+  (prog->registers)[index] = value;
+}
+
+static void set_akku(Prog *prog, uint8_t value)
+{
+  set_reg(prog, 0, value);
+}
+
+static void exec_instruction(Prog *prog, Command *instr)
+{
+  Instruction_Variant variant = (instr->instruction).variant;
+  uint8_t akku_value = get_reg(prog, 0);
+  switch((instr->instruction).type) {
+    case LOAD:  set_akku(prog, get_instr_param(prog, instr->value, variant));
+                break;
+    case STORE: set_reg(prog, instr->value, get_instr_param(prog, 0, variant));
+                break;
+    case ADD:   set_akku(prog, akku_value + get_instr_param(prog, instr->value, variant));
+                break;
+    case SUB:   set_akku(prog, akku_value - get_instr_param(prog, instr->value, variant));
+                break;
+    case MULT:  set_akku(prog, akku_value * get_instr_param(prog, instr->value, variant));
+                break;
+    case DIV:   set_akku(prog, akku_value / get_instr_param(prog, instr->value, variant));
+                break;
+  }
+}
+
+static void jmp_to_label(Prog *prog, char *label)
+{
+  Command *jmp_target = (Command *)get(prog->label_store, label);
+  if(jmp_target == prog->current) {
+    fprintf(stderr, "ERROR: jmp target equals jmp origin\n");
+  }
+  prog->current = jmp_target;
+}
+
+static bool eval_cond(Prog *prog, Command *cond)
+{
+  const uint8_t akku_val = get_reg(prog, 0);
+  switch(cond->cmp_type) {
+    case EQ:  return akku_val == cond->value;
+              break;
+    case LEQ: return akku_val <= cond->value;
+              break;
+    case GEQ: return akku_val >= cond->value;
+              break;
+    case LE:  return akku_val <  cond->value;
+              break;
+    case GR:  return akku_val >  cond->value;
+              break;
+  }
+  return false;
+}
+
 void step(Prog *prog)
 {
+  if(!prog) {
+    fprintf(stderr, "ERROR: cannot execute command in empty Program\n");
+    return;
+  }
   Command *current = prog->current;
+  if(!current) {
+    fprintf(stderr, "RUNTIME-ERROR: Prog has no commands left, maybe you forgot an END somewhere?\n");
+    return;
+  }
   switch(current->type) {
-    case INST:  break;
-    case END:   break;
-    case JMP:   break;
-    case COND:  break;
-    case LABEL: break;
+    case INST:  exec_instruction(prog, current);
+                break;
+    case JMP:   jmp_to_label(prog, current->label);
+                /* specifically invalidate old value */
+                current = NULL;
+                break;
+    case COND:  if(eval_cond(prog, current)) {
+                  jmp_to_label(prog, current->label);
+                  /* specifically invalidate old value */
+                  current = NULL;
+                }
+                break;
+    case LABEL: /* nothing to do on labels */
+    case END:   /*               or end    */
+                break;
     default:    fprintf(stderr, "RUNTIME-ERROR: executing unrecognized command\n");
                 break;
+  }
+  /* advance the step */
+  /*  DO NOT USE current->next instead of prog->current->next since this may
+   *  ignore jmps */
+  prog->current = prog->current->next;
+}
+
+void exec(Prog *prog)
+{
+  while(prog->current->type != END) {
+    step(prog);
+  }
+}
+
+void print_registers(Prog *prog, uint8_t start, uint8_t end)
+{
+  const uint8_t higher = end <= MAX_INDEX ? end : MAX_INDEX;
+  for(uint8_t index = start; index <= higher; index++) {
+    printf("c(%u) = %u\n", index, get_reg(prog, index));
   }
 }

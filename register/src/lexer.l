@@ -23,7 +23,7 @@ LABELCHAR [0-9a-z]
 }
 
 ${LABELCHAR}{1,29} {
-  strcpy(yylval.name, yytext);
+  strcpy(yylval.name, yytext + 1);
   return LABEL_TOK;
 }
 

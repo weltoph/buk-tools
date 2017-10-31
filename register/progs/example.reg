@@ -10,4 +10,6 @@ MULT 1;
 STORE 3;
 GOTO $top;
 $end;
+LOAD 3;
+STORE 1;
 END;

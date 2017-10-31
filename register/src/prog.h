@@ -73,7 +73,11 @@ Command *new_cond(Cmp_Type cmp_type, uint8_t cmp_value, char *label);
 Command *new_label(char *label);
 
 char *cmd_to_string(Command *cmd);
+void cmd_fprint(FILE *dest, Command *cmd);
 
 bool consistency_check(Prog *prog);
+void exec(Prog *prog);
 void step(Prog *prog);
-
+void set_reg(Prog *prog, uint8_t index, uint8_t value);
+uint8_t get_reg(Prog *prog, uint8_t index);
+void print_registers(Prog *prog, uint8_t start, uint8_t end);
