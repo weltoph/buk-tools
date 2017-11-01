@@ -81,3 +81,4 @@ void step(Prog *prog);
 void set_reg(Prog *prog, uint8_t index, uint8_t value);
 uint8_t get_reg(Prog *prog, uint8_t index);
 void print_registers(Prog *prog, uint8_t start, uint8_t end);
+bool is_finished(Prog *prog);

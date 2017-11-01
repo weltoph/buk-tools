@@ -376,3 +376,13 @@ void print_registers(Prog *prog, uint8_t start, uint8_t end)
     printf("c(%u) = %u\n", index, get_reg(prog, index));
   }
 }
+
+bool is_finished(Prog *prog)
+{
+  if(!prog) { return true; }
+  if(!(prog->current)) {
+    fprintf(stderr, "RUNTIME-ERROR: inconsistent program state\n");
+    return true;
+  }
+  return prog->current->type == END;
+}
