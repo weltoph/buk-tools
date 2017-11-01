@@ -10,15 +10,16 @@ YFLAGS=-d
 CC=gcc
 CCFLAGS=-Wall -Wpedantic -Werror -Wextra -g
 
-UTILPATH=../../util
+UTILPATH=../../util/
 
 LEXFILES=$(wildcard *.l)
 YACCFILES=$(wildcard *.y)
+UTILSRC=$(wildcard $(UTILPATH)*.c $(UTILPATH)*.h)
 
 LEXSRC=$(patsubst %.l,%.yy.c,$(LEXFILES))
 YACCSRC=$(patsubst %.y,%.tab.c, $(YACCFILES)) $(patsubst %.y,%.tab.h, $(YACCFILES))
 
-DEP=$(wildcard *.h *.c) $(LEXSRC) $(YACCSRC)
+DEP=$(wildcard *.h *.c) $(LEXSRC) $(YACCSRC) $(UTILPATH)
 INTERMEDSUF=.yy.c .tab.c .tab.h
 
 
