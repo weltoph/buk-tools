@@ -1,0 +1,15 @@
+CLOAD 1;
+STORE 3;
+$top;
+LOAD 2;
+IF c(0)=0 THEN GOTO $end;
+CSUB 1;
+STORE 2;
+LOAD 3;
+MULT 1;
+STORE 3;
+GOTO $top;
+$end;
+LOAD 3;
+STORE 1;
+END;

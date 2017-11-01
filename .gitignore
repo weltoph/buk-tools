@@ -9,6 +9,7 @@ vgcore*
 # executables
 while/whint
 tm/tmint
+register/reint
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
