@@ -58,58 +58,50 @@ struct argp argp = { options, parse_opt, "FILENAME [INPUTS]",
 extern FILE *yyin;
 extern Prog *parse_result;
 
-static void debug_show_reg(Prog *prog, char *input)
+static char *get_token(char **input)
 {
-  uint8_t current_reg;
-  char *input_cpy = malloc(strlen(input) + 1);
-  if(!input_cpy) {
-    fprintf(stderr, "DEBUG-ERROR: could not allocate memory for copy of input %s\n",
-        input);
-    return;
+  char *token = strsep(input, " ");
+  if(!token) {
+    fprintf(stderr, "DEBUG-ERROR: could not extract expected token\n");
   }
-  strcpy(input_cpy, input);
-  char *current = input_cpy;
-  char *token = NULL;
-  /* skip first token */
-  token = strsep(&current, " ");
-  for(token = strsep(&current, " "); token != NULL; token = strsep(&current, " ")) {
-    current_reg = (uint8_t)atoi(token);
-    print_registers(prog, current_reg, current_reg);
-  }
-  free(input_cpy);
+  return token;
 }
 
-static void debug_access_reg(Prog *prog, char *input)
+static void debug_handle_input(Prog *prog, char *input)
 {
-  uint8_t arg1;
-  uint8_t arg2;
   char *input_cpy = malloc(strlen(input) + 1);
   if(!input_cpy) {
-    fprintf(stderr, "DEBUG-ERROR: could not allocate memory for copy of input %s\n",
+    fprintf(stderr, "DEBUG-ERROR: could not allocate memory for tokenizing input %s\n",
         input);
     return;
   }
   strcpy(input_cpy, input);
   char *current = input_cpy;
   char *token = NULL;
-  /* skip first token */
-  token = strsep(&current, " ");
-  token = strsep(&current, " ");
-  if(!token) {
-    fprintf(stderr, "DEBUG-ERROR: could not extract first argument of input %s\n",
-        input);
-    free(input_cpy);
-    return;
+  token = get_token(&current);
+  if(strcmp(token, "n") == 0) {
+    step(prog);
+  } else if(strcmp(token, "r") == 0) {
+    exec(prog);
+  } else if(strcmp(token, "a") == 0) {
+    uint8_t index = (uint8_t)atoi(get_token(&current));
+    uint8_t value = (uint8_t)atoi(get_token(&current));
+    set_reg(prog, index, value);
+  } else if(strcmp(token, "s") == 0) {
+    for(token = get_token(&current); true; token = get_token(&current)) {
+      uint8_t current_reg = (uint8_t)atoi(token);
+      print_registers(prog, current_reg, current_reg);
+      if(current == NULL) { break; }
+    }
+  } else if(strcmp(token, "p") == 0) {
+    print_prog(prog);
+  } else if(strcmp(token, "u") == 0) {
+    prog->current = prog->current->prev ? prog->current->prev : prog->current;
+  } else if(strcmp(token, "d") == 0) {
+    prog->current = prog->current->next ? prog->current->next : prog->current;
+  } else {
+    fprintf(stdout, "unknown debug option %s\n", token);
   }
-  arg1 = (uint8_t)atoi(token);
-  if(!current) {
-    fprintf(stderr, "DEBUG-ERROR: could not extract second argument of input %s\n",
-        input);
-    free(input_cpy);
-    return;
-  }
-  arg2 = (uint8_t)atoi(current);
-  set_reg(prog, arg1, arg2);
   free(input_cpy);
 }
 
@@ -122,6 +114,9 @@ static void debug_prog(Prog *prog)
     fprintf(stdout, "options:\n");
     fprintf(stdout, "\t[n] : executing next step (default)\n");
     fprintf(stdout, "\t[r] : run program to the end\n");
+    fprintf(stdout, "\t[p] : prints program\n");
+    fprintf(stdout, "\t[d] : increases program counter without executing code\n");
+    fprintf(stdout, "\t[u] : decreases program counter without executing code\n");
     fprintf(stdout, "\t[a] n m : setting register n to value m\n");
     fprintf(stdout, "\t[s] n1 ... nk : printing registers n1 to nk\n");
 
@@ -136,16 +131,9 @@ static void debug_prog(Prog *prog)
     if(input_len == 1) {
       step(prog);
     } else {
-      switch(input[0]) {
-        case 'n': step(prog);
-                  break;
-        case 'r': exec(prog);
-                  break;
-        case 's': debug_show_reg(prog, input);
-                  break;
-        case 'a': debug_access_reg(prog, input);
-                  break;
-      }
+      /* strip trailing new-line */
+      input[strlen(input) - 1] = '\0';
+      debug_handle_input(prog, input);
     }
     free(input);
   }

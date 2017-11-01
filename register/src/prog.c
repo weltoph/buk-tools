@@ -45,7 +45,7 @@ bool append_command(Prog *prog, Command *cmd)
     prog->current = cmd;
   } else {
     prog->last->next = cmd;
-    cmd->prev = prog->last->next;
+    cmd->prev = prog->last;
     prog->last = cmd;
     prog->last->next = NULL;
   }
@@ -211,6 +211,26 @@ char *cmd_to_string(Command *cmd)
   return repr;
 }
 
+void print_prog(Prog *prog)
+{
+  if(!prog || !(prog->first)) {
+    fprintf(stdout, "Prog: (null)\n");
+    return;
+  }
+  char *current_cmd_repr;
+  Command *cmd = prog->first;
+  do {
+    current_cmd_repr = cmd_to_string(cmd);
+    if(cmd == prog->current) {
+      fprintf(stdout, "<<%s>>\n", current_cmd_repr);
+    } else {
+      fprintf(stdout, "  %s  \n", current_cmd_repr);
+    }
+    free(current_cmd_repr);
+    cmd = cmd->next;
+  } while(cmd != NULL);
+}
+
 void cmd_fprint(FILE *dest, Command *cmd)
 {
   char *repr = cmd_to_string(cmd);
@@ -373,7 +393,7 @@ void print_registers(Prog *prog, uint8_t start, uint8_t end)
 {
   const uint8_t higher = end <= MAX_INDEX ? end : MAX_INDEX;
   for(uint8_t index = start; index <= higher; index++) {
-    printf("c(%u) = %u\n", index, get_reg(prog, index));
+    fprintf(stdout, "c(%u) = %u\n", index, get_reg(prog, index));
   }
 }
 
