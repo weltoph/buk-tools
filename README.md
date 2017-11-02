@@ -6,6 +6,8 @@ which are examined within the lecture. By now the following models are
 implemented:
 * while-language
 * Turingmachines
+* Register-machines
+
 These implementations are described in more detail below.
 
 # Disclaimer
@@ -16,7 +18,6 @@ I want to issue a warning to proceed at your own risk and with caution!
 # Contributions
 Contributions are welcome and encouraged. It is planned to implement further
 programming models and maybe a few esoteric programming languages, e.g.
-* Register-machines
 * loop-language
 * Brainfuck
 * ...
