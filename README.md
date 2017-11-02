@@ -71,7 +71,7 @@ head points to to the first tapecell to the right that does not contain an
 element of input/output alphabet. Further explanations can be found in the
 [wikipedia article](https://en.wikipedia.org/wiki/Turing_machine) and a more
 physical representation see this
-[video](https://www.youtube.com/watch?v=E3keLeMwfHY)
+[video](https://www.youtube.com/watch?v=E3keLeMwfHY).
 
 ## Grammar
 ```
@@ -93,3 +93,44 @@ The interface simply takes as first argument the path to a text file which
 defines a Turingmachine and every further argument are written to the tape.
 For example `tmint machine.tm 0 1 1 0` generates the following configuration:
 `B q0 0 1 1 0 B`.
+
+# Registermachine Interpreter (reint)
+A Registermachine has access to registers `c(0), c(1), c(2), ...` where we call
+`c(0)` the accumulator. We allow for commands such as `STORE`, `LOAD`, `DIV`,
+`SUB`, `ADD`, `MULT`. Every command takes one argument `i` and uses the
+accumulator and the register `c(i)` as parameters. If the argument produces a
+result it is again stored in the accumulator. All commands (except `STORE`) are
+additionally available as constant variant (preceeded by `C`) where the
+argument is taken directly as argument (and not the corresponding register).
+Furthermore, all commands are available as indirect variant (preceeded by `IND`)
+which takes `c(c(i))` as argument. For example `CLOAD 1` stores the value `1` in
+`c(0)` and `INDSTORE 2` stores the value of `c(0)` in `c(c(2))`. Furthermore we
+allow for storing of labels `$name` and jmps to these labels either
+unconditionally by `GOTO $name` or conditionally by
+`IF c(0){<,>,<=,>=}n THEN GOTO $name`. Given inputs are  stored in the first
+registers, i.e. `c(1), c(2), ...` and the output is defined as the first
+registers after the computation up to the desired arity of the computed function.
+The computation ends upon reaching an `END` command.
+
+## Grammar
+```
+prog ::= cmd; prog | cmd;
+cmd ::= STORE i | LOAD i | ADD i | SUB i | DIV i | MULT i
+  | CLOAD i | CADD i | CSUB i | CDIV i | CMULT i
+  | INDSTORE i | INDLOAD i | INDADD i | INDSUB i | INDDIV i | INDMULT i
+  | $identifier | GOTO $identifier | IF c(0) cmp_symbol x THEN GOTO $identifier
+identifier ::= [a-z0-9]{1,29}
+cmp_symbol ::= < | > | <= | >=
+```
+with the semantic as described above.
+
+## User Interface
+In the root directory `make register` builds the executable in `while/reint`.
+The interface simply takes as first argument the path to a text file which
+defines a registermachine program and every further argument is stored in the
+corresponding registers `c(1), ..., c(n)`. The arity of the function can be
+defined via the `--arity=n` or `-a n` arguments. Also `--debug` or `-d` enters
+a debug mode which allows stepping through the program while allowing
+monitoring and altering the registers and the program counter, i.e. which
+command is executed in the next step.
+
