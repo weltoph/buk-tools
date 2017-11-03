@@ -133,5 +133,5 @@ corresponding registers `c(1), ..., c(n)`. The arity of the function can be
 defined via the `--arity=n` or `-a n` arguments. Also `--debug` or `-d` enters
 a debug mode which allows stepping through the program while allowing
 monitoring and altering the registers and the program counter, i.e. which
-command is executed in the next step.
+command is executed in the next step (as it can be seen in the example below).
 
