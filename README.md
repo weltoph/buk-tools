@@ -134,4 +134,5 @@ defined via the `--arity=n` or `-a n` arguments. Also `--debug` or `-d` enters
 a debug mode which allows stepping through the program while allowing
 monitoring and altering the registers and the program counter, i.e. which
 command is executed in the next step (as it can be seen in the example below).
+![debug example](https://github.com/weltoph/buk-tools/blob/master/register_debug.gif)
 
