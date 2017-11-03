@@ -15,6 +15,7 @@ LABELCHAR [0-9a-z]
 
 %%
 
+"#".*
 [ \t\n]
 
 {VALUE} {
