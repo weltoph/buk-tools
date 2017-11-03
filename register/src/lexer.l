@@ -146,8 +146,12 @@ ${LABELCHAR}{1,29} {
   return GOTO_TOK;
 }
 
-"IF c(0)" {
+"IF" {
   return IF_TOK;
+}
+
+"c(0)" {
+  return ACC_TOK;
 }
 
 "THEN" {

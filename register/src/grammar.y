@@ -37,6 +37,7 @@ Prog *parse_result = NULL;
 %token END_TOK
 %token GOTO_TOK
 %token IF_TOK
+%token ACC_TOK
 %token THEN_TOK
 %token <value> VALUE_TOK
 %token <name> LABEL_TOK
@@ -88,8 +89,8 @@ cmd: INSTRUCTION_TOK VALUE_TOK {
       }
       $$ = value;
     }
-    | IF_TOK CMP_TOK VALUE_TOK THEN_TOK GOTO_TOK LABEL_TOK {
-      Command *value = new_cond($2, $3, $6);
+    | IF_TOK ACC_TOK CMP_TOK VALUE_TOK THEN_TOK GOTO_TOK LABEL_TOK {
+      Command *value = new_cond($3, $4, $7);
       if(!value) {
         fprintf(stderr, "PARSE-ERROR: could not parse line #%i\n", yylineno);
         YYABORT;
