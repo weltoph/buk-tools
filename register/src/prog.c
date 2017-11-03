@@ -14,7 +14,7 @@ Prog *new_prog()
     return NULL;
   }
   /* init all registers to 0; this might be redundant */
-  for(uint8_t i = 0; i <= MAX_INDEX; i++) {
+  for(INDEX_T i = 0; i <= MAX_INDEX; i++) {
     (ret->registers)[i] = 0;
   }
   return ret;
@@ -63,7 +63,7 @@ bool append_command(Prog *prog, Command *cmd)
   return true;
 }
 
-Command *new_instruction(Instruction instruction, uint8_t argument)
+Command *new_instruction(Instruction instruction, VALUE_T argument)
 {
   Command *new_cmd = allocate_command();
   if(!new_cmd) { return NULL; }
@@ -90,7 +90,7 @@ Command *new_jmp(char *label)
   return new_cmd;
 }
 
-Command *new_cond(Cmp_Type cmp_type, uint8_t cmp_value, char *label)
+Command *new_cond(Cmp_Type cmp_type, VALUE_T cmp_value, char *label)
 {
   Command *new_cmd = allocate_command();
   if(!new_cmd) { return NULL; }
@@ -254,12 +254,12 @@ bool consistency_check(Prog *prog)
   return true;
 }
 
-static bool is_valid_index(uint8_t param)
+static bool is_valid_index(INDEX_T param)
 {
   return param <= MAX_INDEX;
 }
 
-uint8_t get_reg(Prog *prog, uint8_t index)
+VALUE_T get_reg(Prog *prog, INDEX_T index)
 {
   if(!is_valid_index(index)) {
     fprintf(stderr, "RUNTIME-ERROR: accessing (read) out-of-range register %u\n",
@@ -269,7 +269,7 @@ uint8_t get_reg(Prog *prog, uint8_t index)
   return (prog->registers)[index];
 }
 
-static uint8_t get_instr_param(Prog *prog, uint8_t param, Instruction_Variant variant)
+static VALUE_T get_instr_param(Prog *prog, VALUE_T param, Instruction_Variant variant)
 {
   switch(variant) {
     case CONSTANT: return param;
@@ -284,7 +284,7 @@ static uint8_t get_instr_param(Prog *prog, uint8_t param, Instruction_Variant va
   }
 }
 
-void set_reg(Prog *prog, uint8_t index, uint8_t value)
+void set_reg(Prog *prog, INDEX_T index, VALUE_T value)
 {
   if(!is_valid_index(index)) {
     fprintf(stderr, "RUNTIME-ERROR: accessing (write) out-of-range register %u\n",
@@ -294,7 +294,7 @@ void set_reg(Prog *prog, uint8_t index, uint8_t value)
   (prog->registers)[index] = value;
 }
 
-static void set_akku(Prog *prog, uint8_t value)
+static void set_akku(Prog *prog, VALUE_T value)
 {
   set_reg(prog, 0, value);
 }
@@ -302,21 +302,25 @@ static void set_akku(Prog *prog, uint8_t value)
 static void exec_instruction(Prog *prog, Command *instr)
 {
   Instruction_Variant variant = (instr->instruction).variant;
-  uint8_t akku_value = get_reg(prog, 0);
+  VALUE_T akku_value = get_reg(prog, 0);
+  int32_t computation_result;
   switch((instr->instruction).type) {
-    case LOAD:  set_akku(prog, get_instr_param(prog, instr->value, variant));
-                break;
     case STORE: set_reg(prog, instr->value, get_instr_param(prog, 0, variant));
+                return;
                 break;
-    case ADD:   set_akku(prog, akku_value + get_instr_param(prog, instr->value, variant));
+    case LOAD:  computation_result = get_instr_param(prog, instr->value, variant);
                 break;
-    case SUB:   set_akku(prog, akku_value - get_instr_param(prog, instr->value, variant));
+    case ADD:   computation_result = akku_value + get_instr_param(prog, instr->value, variant);
                 break;
-    case MULT:  set_akku(prog, akku_value * get_instr_param(prog, instr->value, variant));
+    case SUB:   computation_result = akku_value - get_instr_param(prog, instr->value, variant);
                 break;
-    case DIV:   set_akku(prog, akku_value / get_instr_param(prog, instr->value, variant));
+    case MULT:  computation_result = akku_value * get_instr_param(prog, instr->value, variant);
+                break;
+    case DIV:   computation_result = akku_value / get_instr_param(prog, instr->value, variant);
                 break;
   }
+  computation_result = computation_result < 0 ? 0 : computation_result;
+  set_akku(prog, computation_result);
 }
 
 static void jmp_to_label(Prog *prog, char *label)
@@ -330,7 +334,7 @@ static void jmp_to_label(Prog *prog, char *label)
 
 static bool eval_cond(Prog *prog, Command *cond)
 {
-  const uint8_t akku_val = get_reg(prog, 0);
+  const INDEX_T akku_val = get_reg(prog, 0);
   switch(cond->cmp_type) {
     case EQ:  return akku_val == cond->value;
               break;
@@ -346,16 +350,16 @@ static bool eval_cond(Prog *prog, Command *cond)
   return false;
 }
 
-void step(Prog *prog)
+bool step(Prog *prog)
 {
   if(!prog) {
     fprintf(stderr, "ERROR: cannot execute command in empty Program\n");
-    return;
+    return false;
   }
   Command *current = prog->current;
   if(!current) {
     fprintf(stderr, "RUNTIME-ERROR: Prog has no commands left, maybe you forgot an END somewhere?\n");
-    return;
+    return false;
   }
   switch(current->type) {
     case INST:  exec_instruction(prog, current);
@@ -380,19 +384,28 @@ void step(Prog *prog)
   /*  DO NOT USE current->next instead of prog->current->next since this may
    *  ignore jmps */
   prog->current = prog->current->next;
+  if(!prog->current) {
+    fprintf(stderr, "RUNTIME-ERROR: program reached inconsistent state\n");
+    return false;
+  }
+  return true;
 }
 
-void exec(Prog *prog)
+bool exec(Prog *prog)
 {
   while(prog->current->type != END) {
-    step(prog);
+    if(!step(prog)) {
+      fprintf(stderr, "RUNTIME-ERROR: execution stopped due to error\n");
+      return false;
+    }
   }
+  return true;
 }
 
-void print_registers(Prog *prog, uint8_t start, uint8_t end)
+void print_registers(Prog *prog, INDEX_T start, INDEX_T end)
 {
-  const uint8_t higher = end <= MAX_INDEX ? end : MAX_INDEX;
-  for(uint8_t index = start; index <= higher; index++) {
+  const INDEX_T higher = end <= MAX_INDEX ? end : MAX_INDEX;
+  for(INDEX_T index = start; index <= higher; index++) {
     fprintf(stdout, "c(%u) = %u\n", index, get_reg(prog, index));
   }
 }

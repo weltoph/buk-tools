@@ -67,40 +67,46 @@ static char *get_token(char **input)
   return token;
 }
 
-static void debug_handle_input(Prog *prog, char *input)
+static bool debug_handle_input(Prog *prog, char *input)
 {
   char *input_cpy = malloc(strlen(input) + 1);
   if(!input_cpy) {
     fprintf(stderr, "DEBUG-ERROR: could not allocate memory for tokenizing input %s\n",
         input);
-    return;
+    return false;
   }
   strcpy(input_cpy, input);
   char *current = input_cpy;
   char *token = NULL;
   token = get_token(&current);
   if(strcmp(token, "n") == 0) {
-    step(prog);
+    return step(prog);
   } else if(strcmp(token, "r") == 0) {
-    exec(prog);
+    return exec(prog);
   } else if(strcmp(token, "a") == 0) {
     uint8_t index = (uint8_t)atoi(get_token(&current));
     uint8_t value = (uint8_t)atoi(get_token(&current));
     set_reg(prog, index, value);
+    return true;
   } else if(strcmp(token, "s") == 0) {
     for(token = get_token(&current); true; token = get_token(&current)) {
       uint8_t current_reg = (uint8_t)atoi(token);
       print_registers(prog, current_reg, current_reg);
       if(current == NULL) { break; }
     }
+    return true;
   } else if(strcmp(token, "p") == 0) {
     print_prog(prog);
+    return true;
   } else if(strcmp(token, "u") == 0) {
     prog->current = prog->current->prev ? prog->current->prev : prog->current;
+    return true;
   } else if(strcmp(token, "d") == 0) {
     prog->current = prog->current->next ? prog->current->next : prog->current;
+    return true;
   } else {
     fprintf(stdout, "unknown debug option %s\n", token);
+    return true;
   }
   free(input_cpy);
 }
@@ -133,7 +139,11 @@ static void debug_prog(Prog *prog)
     } else {
       /* strip trailing new-line */
       input[strlen(input) - 1] = '\0';
-      debug_handle_input(prog, input);
+      bool success = debug_handle_input(prog, input);
+      if(!success) {
+        fprintf(stderr, "DEBUG-ERROR: abort debug due to an error\n");
+        break;
+      }
     }
     free(input);
   }
