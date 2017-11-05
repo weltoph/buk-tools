@@ -58,6 +58,18 @@ struct argp argp = { options, parse_opt, "FILENAME [INPUTS]",
 extern FILE *yyin;
 extern Prog *parse_result;
 
+static void print_debug_help()
+{
+    fprintf(stdout, "options:\n");
+    fprintf(stdout, "\t[n] : executing next step (default)\n");
+    fprintf(stdout, "\t[r] : run program to the end\n");
+    fprintf(stdout, "\t[p] : prints program\n");
+    fprintf(stdout, "\t[d] : increases program counter without executing code\n");
+    fprintf(stdout, "\t[u] : decreases program counter without executing code\n");
+    fprintf(stdout, "\t[a] n m : setting register n to value m\n");
+    fprintf(stdout, "\t[s] n1 ... nk : printing registers n1 to nk\n");
+}
+
 static char *get_token(char **input)
 {
   char *token = strsep(input, " ");
@@ -104,6 +116,9 @@ static bool debug_handle_input(Prog *prog, char *input)
   } else if(strcmp(token, "d") == 0) {
     prog->current = prog->current->next ? prog->current->next : prog->current;
     return true;
+  } else if(strcmp(token, "h") == 0) {
+    print_debug_help();
+    return true;
   } else {
     fprintf(stdout, "unknown debug option %s\n", token);
     return true;
@@ -111,20 +126,15 @@ static bool debug_handle_input(Prog *prog, char *input)
   free(input_cpy);
 }
 
+
 static void debug_prog(Prog *prog)
 {
+  fprintf(stdout, "entering debug-mode...\n");
+  fprintf(stdout, "enter 'h' for help\n");
   while(!is_finished(prog)) {
+    fprintf(stdout, "debug@<<");
     cmd_fprint(stdout, prog->current);
-    fprintf(stdout, "\n");
-
-    fprintf(stdout, "options:\n");
-    fprintf(stdout, "\t[n] : executing next step (default)\n");
-    fprintf(stdout, "\t[r] : run program to the end\n");
-    fprintf(stdout, "\t[p] : prints program\n");
-    fprintf(stdout, "\t[d] : increases program counter without executing code\n");
-    fprintf(stdout, "\t[u] : decreases program counter without executing code\n");
-    fprintf(stdout, "\t[a] n m : setting register n to value m\n");
-    fprintf(stdout, "\t[s] n1 ... nk : printing registers n1 to nk\n");
+    fprintf(stdout, ">>: ");
 
     char *input = NULL;
     size_t buf_size = 0;
