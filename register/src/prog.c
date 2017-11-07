@@ -303,23 +303,37 @@ static void exec_instruction(Prog *prog, Command *instr)
 {
   Instruction_Variant variant = (instr->instruction).variant;
   VALUE_T akku_value = get_reg(prog, 0);
-  int32_t computation_result;
+  VALUE_T instr_value;
+  VALUE_T computation_result;
   switch((instr->instruction).type) {
     case STORE: set_reg(prog, instr->value, get_instr_param(prog, 0, variant));
                 return;
                 break;
-    case LOAD:  computation_result = get_instr_param(prog, instr->value, variant);
+    case LOAD:  instr_value = get_instr_param(prog, instr->value, variant);
+                computation_result = instr_value;
                 break;
-    case ADD:   computation_result = akku_value + get_instr_param(prog, instr->value, variant);
+    case ADD:   instr_value = get_instr_param(prog, instr->value, variant);
+                computation_result = akku_value + instr_value;
                 break;
-    case SUB:   computation_result = akku_value - get_instr_param(prog, instr->value, variant);
+    case SUB:   instr_value = get_instr_param(prog, instr->value, variant);
+                if(akku_value < instr_value) {
+                  computation_result = 0;
+                } else {
+                  computation_result = akku_value - instr_value;
+                }
                 break;
-    case MULT:  computation_result = akku_value * get_instr_param(prog, instr->value, variant);
+    case MULT:  instr_value = get_instr_param(prog, instr->value, variant);
+                computation_result = akku_value * instr_value;
                 break;
-    case DIV:   computation_result = akku_value / get_instr_param(prog, instr->value, variant);
+    case DIV:   instr_value = get_instr_param(prog, instr->value, variant);
+                if(instr_value == 0) {
+                  fprintf(stderr, "Runtime-Error: Division by Zero\n");
+                  computation_result = DIV_BY_ZERO_VALUE;
+                } else {
+                  computation_result = akku_value / instr_value;
+                }
                 break;
   }
-  computation_result = computation_result < 0 ? 0 : computation_result;
   set_akku(prog, computation_result);
 }
 

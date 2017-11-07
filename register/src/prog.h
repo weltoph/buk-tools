@@ -3,6 +3,7 @@
 #include "../../util/map.h"
 
 #define MAX_INDEX 100
+#define DIV_BY_ZERO_VALUE 42
 #define VALUE_T uint16_t
 #define INDEX_T uint8_t
 
