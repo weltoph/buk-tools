@@ -34,15 +34,14 @@ $(EXEPATH) : $(DEP)
 %.tab.c %.tab.h : %.y
 	$(YACC) $(YFLAGS) $<
 
-
 clean :
 	@rm -f $(addprefix *,$(INTERMEDSUF))
 	@rm -f vgcore*
 	@rm -f $(EXEPATH)
 
-rebuild :
+rebuild : $(DEP)
 	$(MAKE) clean
 	$(MAKE)
 
-dirty :
+dirty : $(DEP)
 	$(CC) $(CCFLAGS) *.c $(UTILPATH)*.c -o $(EXEPATH)
