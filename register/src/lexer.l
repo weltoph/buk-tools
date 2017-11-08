@@ -9,6 +9,7 @@
 %option noinput
 %option nounput
 %option yylineno
+%option noyywrap
 
 VALUE [0-9]|[1-9][0-9]+
 LABELCHAR [0-9a-z]
