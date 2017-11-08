@@ -24,9 +24,9 @@ INTERMEDSUF=.yy.c .tab.c .tab.h
 
 
 $(EXEPATH) : $(DEP)
-	$(CC) $(CCFLAGS) -Werror *.c $(UTILPATH)*.c -o $(EXEPATH)
+	$(CC) $(CCFLAGS) *.c $(UTILPATH)*.c -o $(EXEPATH)
 
-.PHONY: clean rebuild dirty
+.PHONY: clean rebuild strict
 
 %.yy.c : %.l
 	$(LEX) $(LFLAGS) -o $@ $<
@@ -43,5 +43,5 @@ rebuild : $(DEP)
 	$(MAKE) clean
 	$(MAKE)
 
-dirty : $(DEP)
-	$(CC) $(CCFLAGS) *.c $(UTILPATH)*.c -o $(EXEPATH)
+strict : $(DEP)
+	$(CC) $(CCFLAGS) -Werror *.c $(UTILPATH)*.c -o $(EXEPATH)
