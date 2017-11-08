@@ -9,6 +9,7 @@
 
 %option noinput
 %option nounput
+%option noyywrap
 
 IDENTIFIER [a-z0-9]
 

@@ -8,7 +8,7 @@ YACC=bison
 YFLAGS=-d
 
 CC=gcc
-CCFLAGS=-Wall -Wpedantic -Werror -Wextra -g
+CCFLAGS=-Wall -Wpedantic -Wextra
 
 UTILPATH=../../util/
 
@@ -24,9 +24,9 @@ INTERMEDSUF=.yy.c .tab.c .tab.h
 
 
 $(EXEPATH) : $(DEP)
-	$(CC) $(CCFLAGS) -lfl *.c $(UTILPATH)/*.c -o $(EXEPATH)
+	$(CC) $(CCFLAGS) -Werror *.c $(UTILPATH)/*.c -o $(EXEPATH)
 
-.PHONY: clean rebuild
+.PHONY: clean rebuild dirty
 
 %.yy.c : %.l
 	$(LEX) $(LFLAGS) -o $@ $<
@@ -34,12 +34,14 @@ $(EXEPATH) : $(DEP)
 %.tab.c %.tab.h : %.y
 	$(YACC) $(YFLAGS) $<
 
-
 clean :
-	@rm $(addprefix *,$(INTERMEDSUF))
-	@rm vgcore*
-	@rm $(EXEPATH)
+	@rm -f $(addprefix *,$(INTERMEDSUF))
+	@rm -f vgcore*
+	@rm -f $(EXEPATH)
 
-rebuild :
+rebuild : $(DEP)
 	$(MAKE) clean
 	$(MAKE)
+
+dirty : $(DEP)
+	$(CC) $(CCFLAGS) *.c $(UTILPATH)/*.c -o $(EXEPATH)
